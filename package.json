@@ -1,15 +1,22 @@
 {
   "name": "whatslogged",
-  "version": "0.1.0-alpha",
+  "version": "0.2.0-alpha",
   "description": "Log all your whatsapp messages",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=production babel-node src/index.js",
+    "start:verbose": "LOG_LEVEL=verbose NODE_ENV=production babel-node src/index.js"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "puppeteer": "^1.20.0",
     "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/node": "^7.6.3",
+    "@babel/preset-env": "^7.6.3"
   }
 }
