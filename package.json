@@ -1,11 +1,12 @@
 {
   "name": "whatslogged",
-  "version": "0.2.1-alpha",
+  "version": "0.2.2-alpha",
   "description": "Log all your whatsapp messages",
   "main": "src/index.js",
   "scripts": {
     "start": "NODE_ENV=production babel-node src/index.js",
-    "start:verbose": "LOG_LEVEL=verbose NODE_ENV=production babel-node src/index.js"
+    "start:verbose": "NODE_ENV=production npm run start:dev",
+    "start:dev": "LOG_LEVEL=verbose babel-node src/index.js"
   },
   "author": "",
   "license": "MIT",
