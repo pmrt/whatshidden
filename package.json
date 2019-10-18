@@ -1,0 +1,15 @@
+{
+  "name": "whatslogged",
+  "version": "0.1.0-alpha",
+  "description": "Log all your whatsapp messages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^1.20.0",
+    "winston": "^3.2.1"
+  }
+}
