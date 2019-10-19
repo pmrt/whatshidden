@@ -2,10 +2,8 @@ import puppeteer from 'puppeteer';
 
 import { USER_AGENT, WHATSAPP_WEB_URL } from './consts';
 import logger  from './logger';
-import { isProd } from './utils';
+import { isProd, exit } from './utils';
 import { version } from '../package.json';
-
-let browser, page;
 
 // TODO - Keep trying until getting session code or until timeout
 //  - Observe and refresh session code when it changes
@@ -16,56 +14,54 @@ let browser, page;
 //  - Check if it's raw text, if it's not download it and reference it in the db.
 // TODO - HTML Preview of the chats (v2)
 
-async function launch() {
-    browser = await puppeteer.launch({
-        headless: isProd,
-    });
-    logger.verbose("using %s", await browser.version());
-    page = await browser.newPage();
-    logger.verbose("changing user-agent to '%s'", USER_AGENT);
-
-    page.setUserAgent(USER_AGENT);
-    await page.goto(WHATSAPP_WEB_URL);
-    await page.addScriptTag({
-         path: './src/hook/connect.js'
-    });
-    return { browser, page };
-}
-
-async function getSessionCode(page) {
-    let code = await page.$eval('[data-ref]', el => el.getAttribute('data-ref'));
-    if (!code) {
-        throw new Error("session code couldn't be read");
+class WAContainer {
+    constructor() {
+        this.init();
     }
-    return code;
-}
 
-async function init() {
-    logger.info('[Whatslogged v%s]: new instance from %s; prod-mode=%s', version, process.cwd(), isProd);
+    async launch() {
+        this.browser = await puppeteer.launch({
+            headless: isProd,
+        });
+        logger.verbose("using %s", await this.browser.version());
+        this.page = await this.browser.newPage();
+        logger.verbose("changing user-agent to '%s'", USER_AGENT);
 
-    let code;
-    try {
-        await launch();
-        code = await getSessionCode(page);
-    } catch(e) {
-        if (browser) {
-            // unhandled promise errors - ignore them (we're just exiting)
-            await browser.close();
+        this.page.setUserAgent(USER_AGENT);
+        await this.page.goto(WHATSAPP_WEB_URL);
+        await this.page.addScriptTag({
+             path: './src/hook/connect.js'
+        });
+    }
+
+    async getCode() {
+        let code = await this.page.$eval('[data-ref]', el => el.getAttribute('data-ref'));
+        if (!code) {
+            throw new Error("session code couldn't be read");
         }
-        logger.error(e);
-        exit(1);
+        return code;
     }
 
-    console.log(await page.evaluate(() =>  getConstants()));
+    async init() {
+        logger.info('[Whatslogged v%s]: new instance from %s; prod-mode=%s', version, process.cwd(), isProd);
 
-    logger.verbose("got session code '%s'", code);
-}
+        let code;
+        try {
+            await this.launch();
+            code = await this.getCode();
+        } catch(e) {
+            if (this.browser) {
+                // unhandled promise errors - ignore them (we're just exiting)
+                await this.browser.close();
+            }
+            logger.error(e);
+            exit(1);
+        }
 
-function exit(exitCode=0, warn) {
-    logger.warn(warn);
-    process.exit(exitCode);
+        logger.verbose("got session code '%s'", code);
+    }
 }
 
 process.on('SIGINT', (sig) => exit(0, "SIGNINT RECEIVED (stopped by user interaction)"));
 
-init();
+new WAContainer();
