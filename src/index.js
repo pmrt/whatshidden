@@ -1,6 +1,6 @@
 import puppeteer from 'puppeteer';
 
-import { USER_AGENT, WHATSAPP_WEB_URL, GRACEFULLY_CLOSE_TIMEOUT } from './consts';
+import { USER_AGENT, WHATSAPP_WEB_URL } from './consts';
 import logger  from './logger';
 import { isProd } from './utils';
 import { version } from '../package.json';
@@ -26,7 +26,9 @@ async function launch() {
 
     page.setUserAgent(USER_AGENT);
     await page.goto(WHATSAPP_WEB_URL);
-
+    await page.addScriptTag({
+         path: './src/hook/connect.js'
+    });
     return { browser, page };
 }
 
@@ -39,21 +41,31 @@ async function getSessionCode(page) {
 }
 
 async function init() {
-    logger.info('[Whatslogged v%s]: new instance; prod-mode=%s', version, isProd);
+    logger.info('[Whatslogged v%s]: new instance from %s; prod-mode=%s', version, process.cwd(), isProd);
 
     let code;
     try {
         await launch();
         code = await getSessionCode(page);
     } catch(e) {
+        if (browser) {
+            // unhandled promise errors - ignore them (we're just exiting)
+            await browser.close();
+        }
         logger.error(e);
-        browser.close();
-        setTimeout(() => {
-            process.exit(1);
-        }, GRACEFULLY_CLOSE_TIMEOUT);
+        exit(1);
     }
+
+    console.log(await page.evaluate(() =>  getConstants()));
 
     logger.verbose("got session code '%s'", code);
 }
+
+function exit(exitCode=0, warn) {
+    logger.warn(warn);
+    process.exit(exitCode);
+}
+
+process.on('SIGINT', (sig) => exit(0, "SIGNINT RECEIVED (stopped by user interaction)"));
 
 init();
