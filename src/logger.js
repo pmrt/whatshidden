@@ -2,8 +2,10 @@ import { LOG_DIR_NAME } from './consts';
 import { createLogger, format, transports } from 'winston';
 import { join } from 'path';
 
+export const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
+
 const logger = createLogger({
-    level: process.env.LOG_LEVEL || 'info',
+    level: LOG_LEVEL,
     format: format.combine(
         format.colorize(),
         format.splat(),
