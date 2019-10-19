@@ -8,3 +8,7 @@ export function exit(exitCode=0, warn) {
     }
     process.exit(exitCode);
 }
+
+export function clearConsole() {
+    process.stdout.write('\x1B[2J');
+}

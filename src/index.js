@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import qrcode from 'qrcode-terminal';
 
 import {
     USER_AGENT,
@@ -11,7 +12,7 @@ import {
     LOGIN_OBSERVE_TIMEOUT,
 } from './consts';
 import logger, { LOG_LEVEL } from './logger';
-import { isProd, exit } from './utils';
+import { isProd, exit, clearConsole } from './utils';
 import { version } from '../package.json';
 
 // TODO - Get all the incoming messages, download attachments if the message is an image/voice/video/document and store them.
@@ -64,7 +65,12 @@ class WAContainer {
     }
 
     drawQR(code) {
+        clearConsole();
+        logger.info('Scan the following QRCode with your WhatsApp app: ')
         logger.verbose("got session code '%s'", code);
+        qrcode.generate(code, {
+            small: true,
+        });
     }
 
     // waitForLogin checks if user is logged in until it is or time expires.
@@ -134,6 +140,7 @@ class WAContainer {
 
         switch (res) {
             case QR_SCAN_STATE.SCANNED:
+                clearConsole();
                 logger.info('QRCode successfully scanned');
                 return this.startMiddleman();
             case QR_SCAN_STATE.TIMEOUT:
