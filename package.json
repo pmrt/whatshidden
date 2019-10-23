@@ -1,6 +1,6 @@
 {
   "name": "whatslogged",
-  "version": "0.8.6-alpha",
+  "version": "0.8.7-alpha",
   "description": "Log all your whatsapp messages",
   "main": "src/index.js",
   "scripts": {

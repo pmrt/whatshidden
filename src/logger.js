@@ -9,8 +9,7 @@ const logger = createLogger({
     format: format.combine(
         format.colorize(),
         format.splat(),
-        format.timestamp(),
-        format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`),
+        format.printf(info => `[${new Date().toLocaleString()}] ${info.level}: ${info.message}`),
     ),
     transports: [
         new transports.File({
