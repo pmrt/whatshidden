@@ -90,7 +90,7 @@ function waitForReady() {
     timeout = setTimeout(() => {
         clearInterval(timer);
         emit('wa:ready-timeout');
-    }, 60e3);
+    }, 30e3);
 
     timer = setInterval(() => {
         if (inject(null, true)) {
