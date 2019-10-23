@@ -47,6 +47,7 @@ class WAContainer {
     _onMessage(evt) {
         const msg = extract(evt);
         this.log(msg);
+        logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }
 
     async _launch() {
