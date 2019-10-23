@@ -43,7 +43,7 @@ function inject(injectFn) {
         try {
             listener = mod.exports.default._events.alert_new_msg;
         } catch(err) {
-            if (err instanceof ReferenceError) {
+            if (err instanceof TypeError) {
                 continue;
             } else {
                 throw err;
