@@ -11,7 +11,6 @@ import {
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
     LOGIN_CHECK_INTERVAL,
-    LOGIN_STARTUP_CHECK_TIME,
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
 } from './consts';
@@ -28,10 +27,16 @@ import { version } from '../package.json';
 //  - If it's an image, download it.
 export class WAContainer {
     constructor() {
+        this._onMessage = this._onMessage.bind(this);
+        this._onWAReady = this._onWAReady.bind(this);
+        this._onWATimeout = this._onWATimeout.bind(this);
+
         this._sessionManager = new Session();
         this._msgLogger = new MessageLogger();
         this._tracker = new MessageEvent();
         this._tracker.on("message", this._onMessage);
+        this._tracker.on("wa:ready", this._onWAReady);
+        this._tracker.on("wa:ready-timeout", this._onWATimeout);
 
         this._init();
     }
@@ -52,7 +57,11 @@ export class WAContainer {
     }
 
     async _isLoggedIn() {
-        return await this._page.evaluate(() =>  isLoggedIn());
+        return await this._page.evaluate(() => isLoggedIn());
+    }
+
+    async _setupLoadWatcher() {
+        return await this._page.evaluate(() => waitForReady());
     }
 
     // _loginCheck will check the login status after `msToCheck` milliseconds. If a callback
@@ -80,6 +89,19 @@ export class WAContainer {
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }
 
+    _onWAReady() {
+        logger.verbose("WhatsApp Web finished loading");
+        this._startMiddleman();
+    }
+
+    async _onWATimeout() {
+        logger.verbose("WhatsApp Web loading time limit exceeded");
+        if (!await this._isLoggedIn()) {
+            staleDataDetected();
+        }
+        exit(0);
+    }
+
     async _addScript() {
         await this._page.addScriptTag({
              path: './src/hook/connect.js'
@@ -101,6 +123,12 @@ export class WAContainer {
         logger.verbose("using %s", await this._browser.version());
         this._page = await this._browser.newPage();
         logger.verbose("changing user-agent to '%s'", USER_AGENT);
+
+        logger.verbose("exposing emitters..");
+        await this._page.exposeFunction("emit", (event, ...args) =>
+            this._tracker.emit(event, ...args)
+        );
+        await this._page.exposeFunction("emitReady")
 
         this._page.setUserAgent(USER_AGENT);
         await this._page.goto(WHATSAPP_WEB_URL);
@@ -219,15 +247,10 @@ export class WAContainer {
     }
 
     async _startMiddleman() {
-        logger.verbose("creating inject function..");
-        await this._page.exposeFunction("emitMessage", (...args) =>
-            this._tracker.emit('message', ...args)
-        );
-
         logger.verbose("injecting function..");
         await this._page.evaluate(() => inject(emitMessage));
-
-        logger.info("Waiting for new messages, do not stop the process..");
+        logger.info("ready");
+        logger.info("waiting for new messages, do not stop the process..");
     }
 
     async _init() {
@@ -249,15 +272,8 @@ export class WAContainer {
                 await this._startQR(code);
             }
 
-            await this._startMiddleman();
-
-            // Check login state for stale data 30s after startup..
-            this._loginCheck(LOGIN_STARTUP_CHECK_TIME, isLoggedIn => {
-                if (!isLoggedIn) {
-                    staleDataDetected();
-                }
-            });
-            // and after every LOGIN_CHECK_INTERVAL
+            logger.info("waiting for WhatsApp Web to load..")
+            this._setupLoadWatcher();
             this._loginCheck(LOGIN_CHECK_INTERVAL);
 
         } catch(e) {

@@ -60,7 +60,8 @@ function attachTo(listener, ctx, cb) {
 }
 
 // inject attachs a `injectFn` function to the target listener which intercepts new message
-function inject(injectFn) {
+// if `trial` = true no listener will be attached
+function inject(injectFn, trial) {
     const mods = getWBMods();
 
     let name, listener, mod;
@@ -77,9 +78,31 @@ function inject(injectFn) {
         }
 
         if (Array.isArray(listener)) {
+            if (trial) return true;
             return attachTo(listener, mod.exports.default, injectFn);
         }
     }
+    return false;
+}
+
+function waitForReady() {
+    let timeout, timer;
+    timeout = setTimeout(() => {
+        clearInterval(timer);
+        emit('wa:ready-timeout');
+    }, 60e3);
+
+    timer = setInterval(() => {
+        if (inject(null, true)) {
+            clearInterval(timer);
+            clearTimeout(timeout);
+            emit('wa:ready');
+        }
+    }, 50);
+}
+
+function emitMessage(data) {
+    emit('message', data);
 }
 
 function isLoggedIn() {

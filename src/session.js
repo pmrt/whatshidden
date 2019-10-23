@@ -66,7 +66,7 @@ export class Session {
                     reject(e);
                 }
 
-                logger.info('session loaded successfully');
+                logger.info('session injected successfully');
                 resolve(true);
             });
         });
