@@ -61,6 +61,7 @@ export class WAContainer {
     // if user is not logged in by that time).
     _loginCheck(msToCheck, cb) {
         setTimeout(async () => {
+            logger.verbose('checking login state..');
             const isLoggedIn = await this._isLoggedIn();
             if (cb) {
                 return cb(isLoggedIn);
@@ -79,15 +80,18 @@ export class WAContainer {
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }
 
-    async _inject() {
+    async _addScript() {
         await this._page.addScriptTag({
              path: './src/hook/connect.js'
         });
     }
 
     async _reload() {
-        await this._page.reload();
-        await this._inject();
+        await this._page.reload({
+            waitUntil: 'domcontentloaded',
+        });
+        logger.verbose('page refreshed');
+        await this._addScript();
     }
 
     async _launch() {
@@ -100,7 +104,7 @@ export class WAContainer {
 
         this._page.setUserAgent(USER_AGENT);
         await this._page.goto(WHATSAPP_WEB_URL);
-        await this._inject();
+        await this._addScript();
 
         if (await this.restore()) {
             await this._reload();
