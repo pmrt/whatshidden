@@ -11,6 +11,7 @@ import {
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
 } from './consts';
+import { MessageEvent } from './hook/message';
 import logger, { LOG_LEVEL } from './logger';
 import { isProd, exit, clearConsole } from './utils';
 import { version } from '../package.json';
@@ -26,7 +27,14 @@ import { version } from '../package.json';
 
 class WAContainer {
     constructor() {
+        this.tracker = new MessageEvent();
+        this.tracker.on("message", this.onMessage);
+
         this.init();
+    }
+
+    onMessage(event) {
+        console.log(event);
     }
 
     async launch() {
@@ -153,8 +161,14 @@ class WAContainer {
         }
     }
 
-    startMiddleman() {
-        logger.verbose("Executing injected hooks..");
+    async startMiddleman() {
+        logger.verbose("creating inject function..");
+        await this.page.exposeFunction("emitMessage", (...args) =>
+            this.tracker.emit('message', ...args)
+        );
+
+        logger.verbose("injecting function..");
+        await this.page.evaluate(() => inject(emitMessage));
     }
 
     async init() {
