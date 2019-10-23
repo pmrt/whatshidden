@@ -13,6 +13,8 @@ import {
     LOGIN_CHECK_INTERVAL,
     FULL_DATA_PATH,
     LOGIN_STARTUP_CHECK_TIME,
+    QRCODE_SELECTOR,
+    CODE_ATTRIBUTE,
 } from './consts';
 import { MessageEvent } from './msg/events';
 import { extract } from './msg/message';
@@ -28,8 +30,6 @@ import { version } from '../package.json';
 // TODO - HTML Preview of the chats (v2)
 // - use a db
 // TODO - clean code: extract WAContainer to container.js, short for this._page_evaluate
-// TODO - global selector [data-ref]
-
 class WAContainer {
     constructor() {
         this._sessionManager = new Session();
@@ -116,11 +116,11 @@ class WAContainer {
     }
 
     async _hasQRCode() {
-        return await this._page.$('[data-ref]') !== null;
+        return await this._page.$(QRCODE_SELECTOR) !== null;
     }
 
     async _getCode() {
-        let code = await this._page.$eval('[data-ref]', el => el.getAttribute('data-ref'));
+        let code = await this._page.$eval(QRCODE_SELECTOR, el => el.getAttribute(CODE_ATTRIBUTE));
         if (!code) {
             throw new Error("session code couldn't be read");
         }

@@ -2,6 +2,10 @@ import { join } from "path";
 
 // fixed url for whatsapp web
 export const WHATSAPP_WEB_URL = 'https://web.whatsapp.com';
+// dom selector for finding the qrcode
+export const QRCODE_SELECTOR = '[data-ref]';
+// dom attribute name which stores the QRCode content
+export const CODE_ATTRIBUTE = 'data-ref';
 // log directory name
 export const LOG_DIR_NAME = 'logs';
 // user-agent string to use
