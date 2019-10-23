@@ -1,3 +1,29 @@
+function getSession() {
+    let
+        key, value,
+        i = 0,
+        keys = Object.keys(window.localStorage),
+        res = new Array(keys.length);
+        len = keys.length;
+    for(; i < len; i++) {
+        key = keys[i];
+        value = window.localStorage[key];
+        res[i] = {key, value};
+    }
+    return res;
+}
+
+function setSession(items) {
+    let
+        obj,
+        len = items.length,
+        i = 0;
+    for (;i < len; i++) {
+        obj = items[i];
+        window.localStorage.setItem(obj.key, obj.value);
+    }
+}
+
 function getWBMods() {
     let mods, id = Date.now();
     window.webpackJsonp([], {

@@ -10,25 +10,29 @@ import {
     LOGIN_STATE,
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
+    LOGIN_CHECK_INTERVAL,
+    FULL_DATA_PATH,
+    LOGIN_STARTUP_CHECK_TIME,
 } from './consts';
 import { MessageEvent } from './msg/events';
 import { extract } from './msg/message';
 import { MessageLogger } from './msg/logger';
 import logger, { LOG_LEVEL } from './logger';
-import { isProd, exit, clearConsole } from './utils';
+import { Session } from './session';
+import { isProd, exit, clearConsole, ensureExists, clearSession } from './utils';
 import { version } from '../package.json';
 
 // TODO - Get all the incoming messages, download attachments if the message is an image/voice/video/document and store them.
 //  - Get each message
 //  - If it's an image, download it.
-// TODO - Store & retrieve pass sessions so it doesn't have to scan the qrcode again.
-//  - Backup local storage session after login.
-//  - Restore session after launch if available.
 // TODO - HTML Preview of the chats (v2)
 // - use a db
+// TODO - clean code: extract WAContainer to container.js, short for this._page_evaluate
+// TODO - global selector [data-ref]
 
 class WAContainer {
     constructor() {
+        this._sessionManager = new Session();
         this._msgLogger = new MessageLogger();
         this._tracker = new MessageEvent();
         this._tracker.on("message", this._onMessage);
@@ -40,14 +44,54 @@ class WAContainer {
         this._msgLogger.log(msg);
     }
 
+    // save user's session
+    async save() {
+        let sessionItems = await this._page.evaluate(() =>  getSession());
+        await this._sessionManager.save(sessionItems);
+    }
+
+    // restore user's session
+    async restore() {
+        return await this._sessionManager.restore(this._page);
+    }
+
     async _isLoggedIn() {
         return await this._page.evaluate(() =>  isLoggedIn());
+    }
+
+    // _loginCheck will check the login status after `msToCheck` milliseconds. If a callback
+    // `cb` is provided, it'll execute the callback after the time has elapsed, otherwise the
+    // function turns into a recursive one with a pre-defined behaviour (it'll invoke staleDataDetected
+    // if user is not logged in by that time).
+    _loginCheck(msToCheck, cb) {
+        setTimeout(async () => {
+            const isLoggedIn = await this._isLoggedIn();
+            if (cb) {
+                return cb(isLoggedIn);
+            }
+
+            if (!isLoggedIn) {
+                staleDataDetected();
+            }
+            this._loginCheck(msToCheck);
+        }, msToCheck);
     }
 
     _onMessage(evt) {
         const msg = extract(evt);
         this.log(msg);
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
+    }
+
+    async _inject() {
+        await this._page.addScriptTag({
+             path: './src/hook/connect.js'
+        });
+    }
+
+    async _reload() {
+        await this._page.reload();
+        await this._inject();
     }
 
     async _launch() {
@@ -60,9 +104,11 @@ class WAContainer {
 
         this._page.setUserAgent(USER_AGENT);
         await this._page.goto(WHATSAPP_WEB_URL);
-        await this._page.addScriptTag({
-             path: './src/hook/connect.js'
-        });
+        await this._inject();
+
+        if (await this.restore()) {
+            await this._reload();
+        }
     }
 
     async _getWAGlobals() {
@@ -159,7 +205,8 @@ class WAContainer {
             case QR_SCAN_STATE.SCANNED:
                 clearConsole();
                 logger.info('QRCode successfully scanned');
-                return this._startMiddleman();
+                this.save();
+                break;
             case QR_SCAN_STATE.TIMEOUT:
                 logger.warn('QRCode scanning timeout.');
                 exit(0, "No user has scanned the QR Code. Quiting.. ");
@@ -168,6 +215,7 @@ class WAContainer {
                 logger.error('QRCode scanning error. Unknown QRCode element state.');
                 exit(1);
         }
+        return true;
     }
 
     async _startMiddleman() {
@@ -178,6 +226,8 @@ class WAContainer {
 
         logger.verbose("injecting function..");
         await this._page.evaluate(() => inject(emitMessage));
+
+        logger.info("Waiting for new messages, do not stop the process..");
     }
 
     async _init() {
@@ -192,10 +242,24 @@ class WAContainer {
         let code;
         try {
             await this._launch();
-            code = await this._getCode();
-            const WAGlobals = await this._getWAGlobals();
-            this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
-            this._startQR(code);
+            if (!await this._isLoggedIn()) {
+                code = await this._getCode();
+                const WAGlobals = await this._getWAGlobals();
+                this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
+                await this._startQR(code);
+            }
+
+            await this._startMiddleman();
+
+            // Check login state for stale data 30s after startup..
+            this._loginCheck(LOGIN_STARTUP_CHECK_TIME, isLoggedIn => {
+                if (!isLoggedIn) {
+                    staleDataDetected();
+                }
+            });
+            // and after every LOGIN_CHECK_INTERVAL
+            this._loginCheck(LOGIN_CHECK_INTERVAL);
+
         } catch(e) {
             if (this._browser) {
                 // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
@@ -206,6 +270,20 @@ class WAContainer {
         }
     }
 }
+
+function staleDataDetected() {
+    logger.error("Old session data detected. Your credentials may have expired or you have closed your session from your mobile phone. To recover from this state, the application will delete your session data file.");
+    logger.info("Exiting..");
+    clearSession();
+    exit(0);
+}
+
+ensureExists(FULL_DATA_PATH, err => {
+    if (err) {
+        logger.error(e);
+        exit(1);
+    }
+});
 
 process.on('SIGINT', sig => exit(0, "SIGNINT RECEIVED (stopped by user interaction)"));
 
