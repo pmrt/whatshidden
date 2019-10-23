@@ -13,6 +13,7 @@ import {
 } from './consts';
 import { MessageEvent } from './msg/events';
 import { extract } from './msg/message';
+import { MessageLogger } from './msg/logger';
 import logger, { LOG_LEVEL } from './logger';
 import { isProd, exit, clearConsole } from './utils';
 import { version } from '../package.json';
@@ -28,52 +29,58 @@ import { version } from '../package.json';
 
 class WAContainer {
     constructor() {
-        this.tracker = new MessageEvent();
-        this.tracker.on("message", this.onMessage);
+        this._msgLogger = new MessageLogger();
+        this._tracker = new MessageEvent();
+        this._tracker.on("message", this._onMessage);
 
-        this.init();
+        this._init();
     }
 
-    onMessage(evt) {
-        msg = extract(evt);
+    log(msg) {
+        this._msgLogger.log(msg);
     }
 
-    async launch() {
-        this.browser = await puppeteer.launch({
+    async _isLoggedIn() {
+        return await this._page.evaluate(() =>  isLoggedIn());
+    }
+
+    _onMessage(evt) {
+        const msg = extract(evt);
+        this.log(msg);
+    }
+
+    async _launch() {
+        this._browser = await puppeteer.launch({
             headless: isProd,
         });
-        logger.verbose("using %s", await this.browser.version());
-        this.page = await this.browser.newPage();
+        logger.verbose("using %s", await this._browser.version());
+        this._page = await this._browser.newPage();
         logger.verbose("changing user-agent to '%s'", USER_AGENT);
 
-        this.page.setUserAgent(USER_AGENT);
-        await this.page.goto(WHATSAPP_WEB_URL);
-        await this.page.addScriptTag({
+        this._page.setUserAgent(USER_AGENT);
+        await this._page.goto(WHATSAPP_WEB_URL);
+        await this._page.addScriptTag({
              path: './src/hook/connect.js'
         });
     }
 
-    async isLoggedIn() {
-        return await this.page.evaluate(() =>  isLoggedIn());
+    async _getWAGlobals() {
+        return await this._page.evaluate(() => getConstants());
     }
 
-    async getWAGlobals() {
-        return await this.page.evaluate(() => getConstants());
+    async _hasQRCode() {
+        return await this._page.$('[data-ref]') !== null;
     }
 
-    async hasQRCode() {
-        return await this.page.$('[data-ref]') !== null;
-    }
-
-    async getCode() {
-        let code = await this.page.$eval('[data-ref]', el => el.getAttribute('data-ref'));
+    async _getCode() {
+        let code = await this._page.$eval('[data-ref]', el => el.getAttribute('data-ref'));
         if (!code) {
             throw new Error("session code couldn't be read");
         }
         return code;
     }
 
-    drawQR(code) {
+    _drawQR(code) {
         clearConsole();
         logger.info('Scan the following QRCode with your WhatsApp app: ')
         logger.verbose("got session code '%s'", code);
@@ -86,7 +93,7 @@ class WAContainer {
     //
     // As the login process takes time, you'll need to wait a while before checking if user is logged in right after
     // the login process has started.
-    async waitForLogin() {
+    async _waitForLogin() {
         return new Promise(resolve => {
             let timeout, timer;
             timeout = setTimeout(() => {
@@ -95,7 +102,7 @@ class WAContainer {
             }, LOGIN_OBSERVE_TIMEOUT);
 
             timer = setInterval(async () => {
-                if (await this.isLoggedIn()) {
+                if (await this._isLoggedIn()) {
                     clearTimeout(timeout);
                     clearInterval(timer);
                     resolve(LOGIN_STATE.LOGGED_IN);
@@ -104,7 +111,7 @@ class WAContainer {
         });
     }
 
-    async refreshQR(code) {
+    async _refreshQR(code) {
         return new Promise(resolve => {
             let timeout, timer, newCode;
 
@@ -114,11 +121,11 @@ class WAContainer {
             }, this.GIVE_UP_WAIT - EXPIRATION_MARGIN);
 
             timer = setInterval(async () => {
-                if (!await this.hasQRCode()) {
+                if (!await this._hasQRCode()) {
                     clearTimeout(timeout);
                     clearInterval(timer);
 
-                    switch(await this.waitForLogin()) {
+                    switch(await this._waitForLogin()) {
                         case LOGIN_STATE.LOGGED_IN:
                             return resolve(QR_SCAN_STATE.SCANNED);
                         case LOGIN_STATE.TIMEOUT:
@@ -127,20 +134,20 @@ class WAContainer {
                     }
                 }
 
-                newCode = await this.getCode();
+                newCode = await this._getCode();
                 if (newCode !== code) {
-                    this.drawQR(code = newCode);
+                    this._drawQR(code = newCode);
                 }
             }, QR_OBSERVE_INTERVAL);
         });
     }
 
-    async startQR(code) {
-        this.drawQR(code);
+    async _startQR(code) {
+        this._drawQR(code);
 
         let res;
         try {
-            res = await this.refreshQR(code)
+            res = await this._refreshQR(code)
         } catch(e) {
             const msg = "QRCode scanning error: " + e.message;
             logger.error(msg);
@@ -151,7 +158,7 @@ class WAContainer {
             case QR_SCAN_STATE.SCANNED:
                 clearConsole();
                 logger.info('QRCode successfully scanned');
-                return this.startMiddleman();
+                return this._startMiddleman();
             case QR_SCAN_STATE.TIMEOUT:
                 logger.warn('QRCode scanning timeout.');
                 exit(0, "No user has scanned the QR Code. Quiting.. ");
@@ -162,17 +169,17 @@ class WAContainer {
         }
     }
 
-    async startMiddleman() {
+    async _startMiddleman() {
         logger.verbose("creating inject function..");
-        await this.page.exposeFunction("emitMessage", (...args) =>
-            this.tracker.emit('message', ...args)
+        await this._page.exposeFunction("emitMessage", (...args) =>
+            this._tracker.emit('message', ...args)
         );
 
         logger.verbose("injecting function..");
-        await this.page.evaluate(() => inject(emitMessage));
+        await this._page.evaluate(() => inject(emitMessage));
     }
 
-    async init() {
+    async _init() {
         logger.info(
             '[Whatslogged v%s]: new instance from %s; prod_mode=%s; log_level=%s',
             version,
@@ -183,15 +190,15 @@ class WAContainer {
 
         let code;
         try {
-            await this.launch();
-            code = await this.getCode();
-            const WAGlobals = await this.getWAGlobals();
+            await this._launch();
+            code = await this._getCode();
+            const WAGlobals = await this._getWAGlobals();
             this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
-            this.startQR(code);
+            this._startQR(code);
         } catch(e) {
-            if (this.browser) {
+            if (this._browser) {
                 // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
-                await this.browser.close();
+                await this._browser.close();
             }
             logger.error(e);
             exit(1);
@@ -199,6 +206,6 @@ class WAContainer {
     }
 }
 
-process.on('SIGINT', (sig) => exit(0, "SIGNINT RECEIVED (stopped by user interaction)"));
+process.on('SIGINT', sig => exit(0, "SIGNINT RECEIVED (stopped by user interaction)"));
 
 new WAContainer();

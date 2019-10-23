@@ -1,16 +1,40 @@
+const
+    s = 1,
+    ms = 1000;
+
 class Message {
-    constructor(msg) {
-        this._type = msg.type;
-        this._timestamp = msg.t;
-        this._sender = msg.from;
-        this._isForwarded = msg.isForwarded;
+    constructor(msgData) {
+        this._type = msgData.type;
+        // timestamp (in seconds)
+        this._timestamp = msgData.t * s;
+        this.setTime(msgData.t * s);
+        this._sender = msgData.from;
+        this._isForwarded = msgData.isForwarded;
+    }
+
+    get sender() {
+        const s = parseSender(this._sender);
+        if (s.number) {
+            return s.number;
+        }
+    }
+
+    get at() {
+       return this._timestr;
+    }
+
+    setTime(t) {
+        const inMs = this._timestamp * ms;
+        const date = new Date(inMs);
+        this._timestamp = t;
+        this._timestr = date.toLocaleString();
     }
 }
 
 class Chat extends Message {
-    constructor(msg) {
-        super(msg);
-        this._body = msg.body;
+    constructor(msgData) {
+        super(msgData);
+        this._body = msgData.body;
     }
 
     toString() {
@@ -19,13 +43,13 @@ class Chat extends Message {
 }
 
 class Media extends Message {
-    constructor(msg) {
-        super(msg);
-        this._mimetype = msg.mimetype;
-        this._mediaKey = msg.mediaKey;
-        this._clientUrl = msg.clientUrl;
-        this._size = msg.size;
-        this._filehash = msg.filehash;
+    constructor(msgData) {
+        super(msgData);
+        this._mimetype = msgData.mimetype;
+        this._mediaKey = msgData.mediaKey;
+        this._clientUrl = msgData.clientUrl;
+        this._size = msgData.size;
+        this._filehash = msgData.filehash;
     }
 
     toString() {
@@ -34,11 +58,11 @@ class Media extends Message {
 }
 
 class Image extends Media {
-    constructor(msg) {
-        super(msg);
-        this._body = msg.body;
-        this._width = msg.width;
-        this._height = msg.height;
+    constructor(msgData) {
+        super(msgData);
+        this._body = msgData.body;
+        this._width = msgData.width;
+        this._height = msgData.height;
     }
 
     get typename() {
@@ -47,9 +71,9 @@ class Image extends Media {
 }
 
 class Voice extends Media {
-    constructor(msg) {
-        super(msg);
-        this._duration = msg.duration
+    constructor(msgData) {
+        super(msgData);
+        this._duration = msgData.duration
     }
 
     get typename() {
@@ -65,6 +89,12 @@ const Type = {
 
 // extract is a convenient function to get with O(1) the corresponding
 // class message.
-export function extract(msg) {
-    return new Type[msg.type](msg);
+export function extract(msgData) {
+    return new Type[msgData.type](msgData);
+}
+
+function parseSender(sender) {
+    if (!sender) return;
+    const [number, type] = sender.split("@");
+    return { number, type };
 }

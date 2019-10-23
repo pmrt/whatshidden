@@ -12,6 +12,10 @@ export const QR_OBSERVE_INTERVAL = 250;
 export const LOGIN_OBSERVE_INTERVAL = 100;
 // time to timeout login state observation (milliseconds)
 export const LOGIN_OBSERVE_TIMEOUT = 1e3;
+// path to chat logs
+export const CHAT_LOGS_PATH = 'chats';
+// chat logs file extension
+export const CHAT_LOGS_EXTENSION = 'log';
 
 export const QR_SCAN_STATE = {
     SCANNED: 1,
