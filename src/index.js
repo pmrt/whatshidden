@@ -11,7 +11,8 @@ import {
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
 } from './consts';
-import { MessageEvent } from './hook/message';
+import { MessageEvent } from './msg/events';
+import { extract } from './msg/message';
 import logger, { LOG_LEVEL } from './logger';
 import { isProd, exit, clearConsole } from './utils';
 import { version } from '../package.json';
@@ -33,8 +34,8 @@ class WAContainer {
         this.init();
     }
 
-    onMessage(event) {
-        console.log(event);
+    onMessage(evt) {
+        msg = extract(evt);
     }
 
     async launch() {
