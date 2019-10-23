@@ -3,7 +3,7 @@ import { join } from "path";
 import { FULL_DATA_PATH, SESSION_FILE } from "./consts";
 import logger from "./logger";
 
-const filePath = join(FULL_DATA_PATH, SESSION_FILE)
+const filePath = join(FULL_DATA_PATH, SESSION_FILE);
 
 export class Session {
     save(items) {

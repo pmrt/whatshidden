@@ -148,7 +148,7 @@ export class WAContainer {
     }
 
     async _getCode() {
-        let code = await this._page.$eval(QRCODE_SELECTOR, el => el.getAttribute(CODE_ATTRIBUTE));
+        let code = await this._page.$eval(QRCODE_SELECTOR, (el, attr) => el.getAttribute(attr), CODE_ATTRIBUTE);
         if (!code) {
             throw new Error("session code couldn't be read");
         }
