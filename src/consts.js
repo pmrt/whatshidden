@@ -13,7 +13,7 @@ export const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) Apple
 // expiration time margin (milliseconds)
 export const EXPIRATION_MARGIN = 5e3;
 // time to observe the qr code scanning state again (milliseconds)
-export const QR_OBSERVE_INTERVAL = 250;
+export const QR_OBSERVE_INTERVAL = 50;
 // time to observe the login state again (milliseconds)
 export const LOGIN_OBSERVE_INTERVAL = 100;
 // time to timeout login state observation (milliseconds)
