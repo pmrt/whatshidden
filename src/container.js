@@ -132,6 +132,7 @@ export class WAContainer {
     async _launch() {
         this._browser = await puppeteer.launch({
             headless: isProd,
+            devtools: !isProd,
         });
         logger.verbose("using %s", await this._browser.version());
         this._page = await this._browser.newPage();
