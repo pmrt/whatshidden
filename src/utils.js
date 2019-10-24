@@ -1,7 +1,8 @@
 import logger from './logger';
-import { mkdir, unlink } from 'fs';
+import { unlink } from 'fs';
 import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH } from './consts';
 import { join } from 'path';
+import mkdirp  from 'mkdirp';
 
 export const isProd = process.env.NODE_ENV === 'production';
 
@@ -27,7 +28,7 @@ export function getSenderPath(sender) {
     const path = join(FULL_CHAT_LOGS_PATH, sender);
     ensureExists(path, err => {
         if (err) {
-            logger.error(err);
+            logger.warn(err);
             return;
         }
     });
@@ -39,9 +40,9 @@ export function clearConsole() {
 }
 
 export function ensureExists(path, cb) {
-    mkdir(path, err => {
+    mkdirp(path, { recursive: true }, err => {
         if (err) {
-            if (err.code === 'EEXIST') {
+            if (err.code === 'EEXIST' || err.code === 'ENOENT') {
                 return cb();
             }
             return cb(err);
