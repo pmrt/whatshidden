@@ -6,7 +6,7 @@ import { WAContainer } from './container';
 
 ensureExists(FULL_DATA_PATH, err => {
     if (err) {
-        logger.error(e);
+        logger.error(err);
         exit(1);
     }
 });

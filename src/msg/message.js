@@ -79,7 +79,8 @@ class Media extends Message {
             this._mediaKey,
             this.getType(),
             this._clientUrl,
-            this._filehash
+            this._filehash,
+            this.sender,
         )
         return await dw.downloadAndDecrypt();
     }

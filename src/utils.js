@@ -1,6 +1,6 @@
 import logger from './logger';
 import { mkdir, unlink } from 'fs';
-import { FULL_DATA_PATH, SESSION_FILE, DATA_DIR } from './consts';
+import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH } from './consts';
 import { join } from 'path';
 
 export const isProd = process.env.NODE_ENV === 'production';
@@ -21,6 +21,17 @@ export function clearSession() {
             exit(1);
         }
     });
+}
+
+export function getSenderPath(sender) {
+    const path = join(FULL_CHAT_LOGS_PATH, sender);
+    ensureExists(path, err => {
+        if (err) {
+            logger.error(err);
+            return;
+        }
+    });
+    return path;
 }
 
 export function clearConsole() {

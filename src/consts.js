@@ -22,6 +22,8 @@ export const LOGIN_OBSERVE_TIMEOUT = 1e3;
 export const CHAT_LOGS_DIR = 'chats';
 // path to chat logs
 export const FULL_CHAT_LOGS_PATH = join(process.cwd(), CHAT_LOGS_DIR);
+// chat log filename
+export const CHAT_FILENAME = 'chat';
 // chat logs file extension
 export const CHAT_LOGS_EXTENSION = 'log';
 // data directory name

@@ -6,6 +6,7 @@ import hkdf from 'futoin-hkdf';
 
 import logger from './logger';
 import { HKDF_EXPAND_LENGTH, CHAT_LOGS_DIR } from './consts';
+import { getSenderPath } from './utils';
 
 function B64ToArrayBuffer(encKey) {
     for (var t = encKey.length, n = new Int32Array(t + t % 4), r = 0; r < t; r++) {
@@ -73,11 +74,12 @@ function HKDF(secret, info, length) {
 }
 
 export class WAMediaDownloader {
-    constructor(mediaKey, type, mediaUrl, mediaHash) {
+    constructor(mediaKey, type, mediaUrl, mediaHash, sender) {
         this._key = mediaKey;
         this._url = mediaUrl;
         this._type = type;
         this._hash = mediaHash;
+        this._sender = sender;
     }
 
     async downloadAndDecrypt() {
@@ -88,8 +90,8 @@ export class WAMediaDownloader {
 
         const { info, ext } = this._type;
         const bundle = HKDF(this._key, info, HKDF_EXPAND_LENGTH);
-        const filename = encodeURIComponent(this._hash)
-        const output = createWriteStream(join(CHAT_LOGS_DIR, filename + `.${ext}`));
+        const filename = encodeURIComponent(this._hash);
+        const output = createWriteStream(join(getSenderPath(`+${this._sender}`), `${filename}.${ext}`));
         const decryption = createDecipheriv(
             'aes-256-cbc',
             Buffer.from(bundle.encKey),
