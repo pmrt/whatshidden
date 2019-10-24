@@ -1,6 +1,6 @@
 {
   "name": "whatslogged",
-  "version": "0.8.8-alpha",
+  "version": "0.8.9-alpha",
   "description": "Log all your whatsapp messages",
   "main": "src/index.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "futoin-hkdf": "^1.2.1",
     "puppeteer": "^1.20.0",
     "qrcode-terminal": "^0.12.0",
     "winston": "^3.2.1"

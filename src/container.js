@@ -128,7 +128,6 @@ export class WAContainer {
         await this._page.exposeFunction("emit", (event, ...args) =>
             this._tracker.emit(event, ...args)
         );
-        await this._page.exposeFunction("emitReady")
 
         this._page.setUserAgent(USER_AGENT);
         await this._page.goto(WHATSAPP_WEB_URL);
