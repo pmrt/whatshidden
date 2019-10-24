@@ -132,10 +132,11 @@ const Type = {
     'chat': Chat,
 }
 
-// extract is a convenient function to get with O(1) the corresponding
-// class message.
+// extract is a convenient function to get the corresponding
+// class message with O(1).
 export function extract(msgData) {
-    return new Type[msgData.type](msgData);
+    const type = Type[msgData.type];
+    return type ? new type(msgData) : new Message(msgData);
 }
 
 function parseSender(sender) {
