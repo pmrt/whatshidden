@@ -92,13 +92,13 @@ export class WAContainer {
             if (msg.isMedia()) {
                 msg.downloadAndDecrypt();
             }
+            this.log(msg);
         } catch(e) {
             logger.warn("onWAMessage: failed to read new message");
             logger.error(e)
             return;
         }
 
-        this.log(msg);
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }
 
