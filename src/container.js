@@ -23,18 +23,19 @@ import { isProd, exit, clearConsole} from './utils';
 import { staleDataDetected } from './errors';
 import { version } from '../package.json';
 
-// TODO - Get all the incoming messages, download attachments if the message is an image/voice/video/document and store them.
-//  - If it's an image, download it.
+// TODO - Don't download the same image in the same conversation twice.
+// TODO - folders to conversations and images
+// TODO - support for documents, videos, stickers..
 export class WAContainer {
     constructor() {
-        this._onMessage = this._onMessage.bind(this);
+        this._onWAMessage = this._onWAMessage.bind(this);
         this._onWAReady = this._onWAReady.bind(this);
         this._onWATimeout = this._onWATimeout.bind(this);
 
         this._sessionManager = new Session();
         this._msgLogger = new MessageLogger();
         this._tracker = new MessageEvent();
-        this._tracker.on("message", this._onMessage);
+        this._tracker.on("wa:message", this._onWAMessage);
         this._tracker.on("wa:ready", this._onWAReady);
         this._tracker.on("wa:ready-timeout", this._onWATimeout);
 
@@ -83,8 +84,20 @@ export class WAContainer {
         }, msToCheck);
     }
 
-    _onMessage(evt) {
-        const msg = extract(evt);
+    _onWAMessage(evt) {
+        let msg;
+
+        try {
+             msg = extract(evt);
+            if (msg.isMedia()) {
+                msg.downloadAndDecrypt();
+            }
+        } catch(e) {
+            logger.warn("onWAMessage: failed to read new message");
+            logger.error(e)
+            return;
+        }
+
         this.log(msg);
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }

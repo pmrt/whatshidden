@@ -1,5 +1,5 @@
 import { Container, format, transports } from 'winston';
-import { CHAT_LOGS_DIR, CHAT_LOGS_EXTENSION } from '../consts';
+import { CHAT_LOGS_EXTENSION, FULL_CHAT_LOGS_PATH } from '../consts';
 import { join } from 'path';
 
 const loggerOts = {
@@ -19,7 +19,7 @@ class Conversations {
         const opts = {...loggerOts, ...{
                 transports: [
                     new transports.File({
-                        filename: join(CHAT_LOGS_DIR, filename + `.${CHAT_LOGS_EXTENSION}`),
+                        filename: join(FULL_CHAT_LOGS_PATH, filename + `.${CHAT_LOGS_EXTENSION}`),
                     })
                 ]
             }

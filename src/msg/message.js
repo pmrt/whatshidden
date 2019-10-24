@@ -1,3 +1,5 @@
+import { WAMediaDownloader } from "../crypto";
+
 const
     s = 1,
     ms = 1000;
@@ -21,6 +23,10 @@ class Message {
 
     get at() {
        return this._timestr;
+    }
+
+    isMedia() {
+        return false
     }
 
     setTime(t) {
@@ -53,7 +59,29 @@ class Media extends Message {
     }
 
     toString() {
-        return `${this.typename} message (${this._filehash})`;
+        return `${this.typename} message (${encodeURIComponent(this._filehash)})`;
+    }
+
+    isMedia() {
+        return true;
+    }
+
+    getType() {
+        return {
+            mime: this._mimetype,
+            info: this.appInfo,
+            ext: this.fileExtension,
+        }
+    }
+
+    async downloadAndDecrypt() {
+        const dw = new WAMediaDownloader(
+            this._mediaKey,
+            this.getType(),
+            this._clientUrl,
+            this._filehash
+        )
+        return await dw.downloadAndDecrypt();
     }
 }
 
@@ -68,21 +96,37 @@ class Image extends Media {
     get typename() {
         return "Image";
     }
+
+    get appInfo() {
+        return "WhatsApp Image Keys";
+    }
+
+    get fileExtension() {
+        return "jpg";
+    }
 }
 
-class Voice extends Media {
+class Audio extends Media {
     constructor(msgData) {
         super(msgData);
         this._duration = msgData.duration
     }
 
     get typename() {
-        return "Voice";
+        return "Audio";
+    }
+
+    get appInfo() {
+        return "WhatsApp Audio Keys";
+    }
+
+    get fileExtension() {
+        return "m4a";
     }
 }
 
 const Type = {
-    'ptt': Voice,
+    'ptt': Audio,
     'image': Image,
     'chat': Chat,
 }

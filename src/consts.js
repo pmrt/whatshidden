@@ -18,8 +18,10 @@ export const QR_OBSERVE_INTERVAL = 50;
 export const LOGIN_OBSERVE_INTERVAL = 100;
 // time to timeout login state observation (milliseconds)
 export const LOGIN_OBSERVE_TIMEOUT = 1e3;
-// path to chat logs
+// directory name of chat logs
 export const CHAT_LOGS_DIR = 'chats';
+// path to chat logs
+export const FULL_CHAT_LOGS_PATH = join(process.cwd(), CHAT_LOGS_DIR);
 // chat logs file extension
 export const CHAT_LOGS_EXTENSION = 'log';
 // data directory name
@@ -33,6 +35,8 @@ export const SCRIPTS_NEEDED_TO_REPORT_LOAD = 10;
 // interval after which the app will check again the login status to prevent stale
 // session data. (milliseconds)
 export const LOGIN_CHECK_INTERVAL = 900e3;
+// expand key length (bytes)
+export const HKDF_EXPAND_LENGTH = 112;
 
 export const QR_SCAN_STATE = {
     SCANNED: 1,

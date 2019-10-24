@@ -79,6 +79,7 @@ function inject(injectFn, trial) {
 
         if (Array.isArray(listener)) {
             if (trial) return true;
+            if (listener.length >= 2 && !!listener.find(evt => evt.callback === injectFn)) return false;
             return attachTo(listener, mod.exports.default, injectFn);
         }
     }
@@ -102,7 +103,7 @@ function waitForReady() {
 }
 
 function emitMessage(data) {
-    emit('message', data);
+    emit('wa:message', data);
 }
 
 function isLoggedIn() {
