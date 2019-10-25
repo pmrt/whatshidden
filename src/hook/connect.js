@@ -67,8 +67,15 @@ function attachTo(listener, ctx, cb) {
     });
 }
 
-// inject attachs a `injectFn` function to the target listener which intercepts new message
-// if `trial` = true no listener will be attached
+/*
+    inject attachs a `injectFn` function to the target listener which intercepts
+    new messages.
+
+    inject will not attach the same `injectFn` function twice.
+
+    If `trial` = true no listener will be attached, this is useful for testing or
+    checking if the needed listener is available
+*/
 function inject(injectFn, trial) {
     const mods = getWBMods();
 
