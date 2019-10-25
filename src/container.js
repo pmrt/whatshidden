@@ -135,6 +135,7 @@ export class WAContainer {
         _addScript injects the needed scripts to the page
     */
     async _addScript() {
+        logger.verbose('injecting hooks into the page...')
         await this._page.addScriptTag({
              path: './src/hook/connect.js'
         });
@@ -162,14 +163,16 @@ export class WAContainer {
         });
         logger.verbose("using %s", await this._browser.version());
         this._page = await this._browser.newPage();
-        logger.verbose("changing user-agent to '%s'", USER_AGENT);
 
-        logger.verbose("exposing emitters..");
+        logger.verbose("exposing emitter...");
         await this._page.exposeFunction("emit", (event, ...args) =>
-            this._tracker.emit(event, ...args)
+        this._tracker.emit(event, ...args)
         );
 
+        logger.verbose("changing user-agent to '%s'...", USER_AGENT);
         this._page.setUserAgent(USER_AGENT);
+
+        logger.verbose("navigating to %s...", WHATSAPP_WEB_URL);
         await this._page.goto(WHATSAPP_WEB_URL);
         await this._addScript();
 
