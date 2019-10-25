@@ -5,7 +5,7 @@ import { createDecipheriv } from 'crypto';
 import hkdf from 'futoin-hkdf';
 
 import logger from './logger';
-import { HKDF_EXPAND_LENGTH, CHAT_LOGS_DIR } from './consts';
+import { HKDF_EXPAND_LENGTH } from './consts';
 import { getSenderPath } from './utils';
 
 function B64ToArrayBuffer(encKey) {
