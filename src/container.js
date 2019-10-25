@@ -22,7 +22,7 @@ import logger, { LOG_LEVEL } from './logger';
 import { Session } from './session';
 import { isProd, exit, clearConsole} from './utils';
 import { staleDataDetected } from './errors';
-import { version } from '../package.json';
+import { name, version } from '../package.json';
 
 // TODO - Don't download the same image in the same conversation twice.
 // TODO - folders to conversations and images
@@ -275,7 +275,8 @@ export class WAContainer {
 
     async _init() {
         logger.info(
-            '[Whatslogged v%s]: new instance from %s; prod_mode=%s; log_level=%s',
+            '[%s v%s]: new instance from %s; prod_mode=%s; log_level=%s',
+            name,
             version,
             process.cwd(),
             isProd,
