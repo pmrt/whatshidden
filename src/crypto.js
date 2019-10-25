@@ -47,7 +47,6 @@ function decodeB64(encKey) {
     throw new Error("Base64.decode given invalid string");
 }
 
-// If exp = string, base64 decodes it and converts it to Uint8Array
 function decode(arrType, exp) {
     if ( exp instanceof arrType ) return exp;
     // module: bcjbjghiih

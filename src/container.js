@@ -24,9 +24,6 @@ import { isProd, exit, clearConsole} from './utils';
 import { staleDataDetected } from './errors';
 import { name, version } from '../package.json';
 
-// TODO - Don't download the same image in the same conversation twice.
-// TODO - folders to conversations and images
-// TODO - support for documents, videos, stickers..
 export class WAContainer {
     constructor() {
         this._onWAMessage = this._onWAMessage.bind(this);
@@ -47,13 +44,17 @@ export class WAContainer {
         this._msgLogger.log(msg);
     }
 
-    // save user's session
+    /*
+        saves user's session
+    */
     async save() {
         let sessionItems = await this._page.evaluate(() =>  getSession());
         await this._sessionManager.save(sessionItems);
     }
 
-    // restore user's session
+    /*
+        restores user's session
+    */
     async restore() {
         return await this._sessionManager.restore(this._page);
     }
@@ -66,10 +67,13 @@ export class WAContainer {
         return await this._page.evaluate(() => waitForReady());
     }
 
-    // _loginCheck will check the login status after `msToCheck` milliseconds. If a callback
-    // `cb` is provided, it'll execute the callback after the time has elapsed, otherwise the
-    // function turns into a recursive one with a pre-defined behaviour (it'll invoke staleDataDetected
-    // if user is not logged in by that time).
+    /*
+        _loginCheck will check the login status after `msToCheck` milliseconds.
+        If a callback `cb` is provided, it'll execute the callback after the
+        time has elapsed, otherwise the function turns into a recursive one with
+        a pre-defined behaviour (it'll invoke staleDataDetected if user is not
+        logged in by that time).
+    */
     _loginCheck(msToCheck, cb) {
         setTimeout(async () => {
             logger.verbose('checking login state..');
@@ -85,6 +89,9 @@ export class WAContainer {
         }, msToCheck);
     }
 
+    /*
+        _onWAMessage handles new message events
+    */
     _onWAMessage(evt) {
         let msg;
 
@@ -103,11 +110,19 @@ export class WAContainer {
         logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
     }
 
+    /*
+        _onWAReady handles 'wa:ready' event. ie. When WhatsApp web has finished
+        loading and user is logged in
+    */
     _onWAReady() {
         logger.verbose("WhatsApp Web finished loading");
         this._startMiddleman();
     }
 
+    /*
+        _onWATimeout handles wa:ready-timeout event. ie. When the time limit for
+        'wa:read' event has been exceeded
+    */
     async _onWATimeout() {
         logger.verbose("WhatsApp Web loading time limit exceeded");
         if (!await this._isLoggedIn()) {
@@ -116,12 +131,18 @@ export class WAContainer {
         exit(0);
     }
 
+    /*
+        _addScript injects the needed scripts to the page
+    */
     async _addScript() {
         await this._page.addScriptTag({
              path: './src/hook/connect.js'
         });
     }
 
+    /*
+        _reload refreshes the page and injects the needed scripts again
+    */
     async _reload() {
         await this._page.reload({
             waitUntil: 'domcontentloaded',
@@ -130,6 +151,10 @@ export class WAContainer {
         await this._addScript();
     }
 
+    /*
+        _launch handles the chromium launch process. In production mode the
+        browser will be in headless mode
+    */
     async _launch() {
         this._browser = await puppeteer.launch({
             headless: isProd,
@@ -153,14 +178,25 @@ export class WAContainer {
         }
     }
 
+    /*
+        _getWAGlobals uses the injected function getConstants to retrieve
+        the WhatsApp internal globals
+    */
     async _getWAGlobals() {
         return await this._page.evaluate(() => getConstants());
     }
 
+    /*
+        _hasQRCode determines if the QRCODE element is present
+    */
     async _hasQRCode() {
         return await this._page.$(QRCODE_SELECTOR) !== null;
     }
 
+    /*
+        _getCode attempts to retrieve the QRCode content code from the QRCode
+        element
+    */
     async _getCode() {
         let code = await this._page.$eval(QRCODE_SELECTOR, (el, attr) => el.getAttribute(attr), CODE_ATTRIBUTE);
         if (!code) {
@@ -169,6 +205,10 @@ export class WAContainer {
         return code;
     }
 
+    /*
+        _drawQR displays a QRCode with the provided `code` content, in the
+        terminal
+    */
     _drawQR(code) {
         clearConsole();
         logger.info('Scan the following QRCode with your WhatsApp app: ')
@@ -178,16 +218,21 @@ export class WAContainer {
         });
     }
 
+    /*
+        _waitForQRCode waits for QRCode element to be present in the DOM
+    */
     async _waitForQRCode() {
         return await this._page.waitForSelector(QRCODE_SELECTOR, {
             timeout: QRCODE_WAIT_TIMEOUT,
         });
     }
 
-    // waitForLogin checks if user is logged in until it is or time expires.
-    //
-    // As the login process takes time, you'll need to wait a while before checking if user is logged in right after
-    // the login process has started.
+    /*
+        waitForLogin checks if user is logged in until it is or time expires.
+
+        As the login process takes time, you'll need to wait a while before
+        checking if user is logged in right after the login process has started.
+    */
     async _waitForLogin() {
         return new Promise(resolve => {
             let timeout, timer;
@@ -206,6 +251,9 @@ export class WAContainer {
         });
     }
 
+    /*
+        _refreshQR takes care of the QRCode rotation process
+    */
     async _refreshQR(code) {
         return new Promise(resolve => {
             let timeout, timer, newCode;
@@ -237,6 +285,10 @@ export class WAContainer {
         });
     }
 
+    /*
+        _startQR takes a given code (the first one) and start the QRCode
+        rotation process
+    */
     async _startQR(code) {
         this._drawQR(code);
 
@@ -266,6 +318,10 @@ export class WAContainer {
         return true;
     }
 
+    /*
+        _startMiddleman handles the injection process to intercept new
+        messages
+    */
     async _startMiddleman() {
         logger.verbose("injecting function..");
         await this._page.evaluate(() => inject(emitMessage));
