@@ -4,6 +4,8 @@ import { join } from "path";
 export const WHATSAPP_WEB_URL = 'https://web.whatsapp.com';
 // dom selector for finding the qrcode
 export const QRCODE_SELECTOR = '[data-ref]';
+// time limit to wait for QRCode element
+export const QRCODE_WAIT_TIMEOUT = 30e3;
 // dom attribute name which stores the QRCode content
 export const CODE_ATTRIBUTE = 'data-ref';
 // log directory name

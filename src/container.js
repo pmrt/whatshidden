@@ -13,6 +13,7 @@ import {
     LOGIN_CHECK_INTERVAL,
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
+    QRCODE_WAIT_TIMEOUT,
 } from './consts';
 import { MessageEvent } from './msg/events';
 import { extract } from './msg/message';
@@ -177,6 +178,12 @@ export class WAContainer {
         });
     }
 
+    async _waitForQRCode() {
+        return await this._page.waitForSelector(QRCODE_SELECTOR, {
+            timeout: QRCODE_WAIT_TIMEOUT,
+        });
+    }
+
     // waitForLogin checks if user is logged in until it is or time expires.
     //
     // As the login process takes time, you'll need to wait a while before checking if user is logged in right after
@@ -279,6 +286,7 @@ export class WAContainer {
         try {
             await this._launch();
             if (!await this._isLoggedIn()) {
+                await this._waitForQRCode();
                 code = await this._getCode();
                 const WAGlobals = await this._getWAGlobals();
                 this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;

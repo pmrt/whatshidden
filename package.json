@@ -1,6 +1,6 @@
 {
   "name": "whatslogged",
-  "version": "1.0.5-beta",
+  "version": "1.0.6-beta",
   "description": "Read deleted WhatsApp messages",
   "main": "src/index.js",
   "scripts": {
