@@ -21,7 +21,7 @@ import { MessageLogger } from './msg/logger';
 import logger, { LOG_LEVEL } from './logger';
 import { Session } from './session';
 import { isProd, exit, clearConsole} from './utils';
-import { staleDataDetected } from './errors';
+import { recover } from './errors';
 import { name, version } from '../package.json';
 
 export class WAContainer {
@@ -71,8 +71,8 @@ export class WAContainer {
         _loginCheck will check the login status after `msToCheck` milliseconds.
         If a callback `cb` is provided, it'll execute the callback after the
         time has elapsed, otherwise the function turns into a recursive one with
-        a pre-defined behaviour (it'll invoke staleDataDetected if user is not
-        logged in by that time).
+        a pre-defined behaviour (it'll invoke recover if user is not logged-in
+        by that time).
     */
     _loginCheck(msToCheck, cb) {
         setTimeout(async () => {
@@ -83,7 +83,7 @@ export class WAContainer {
             }
 
             if (!isLoggedIn) {
-                staleDataDetected();
+                recover();
             }
             this._loginCheck(msToCheck);
         }, msToCheck);
@@ -126,7 +126,7 @@ export class WAContainer {
     async _onWATimeout() {
         logger.verbose("WhatsApp Web loading time limit exceeded");
         if (!await this._isLoggedIn()) {
-            staleDataDetected();
+            recover();
         }
         exit(0);
     }
