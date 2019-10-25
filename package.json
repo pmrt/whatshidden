@@ -8,6 +8,10 @@
     "start:verbose": "NODE_ENV=production npm run start:dev",
     "start:dev": "LOG_LEVEL=verbose babel-node src/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pmrt/whatshidden"
+  },
   "author": {
     "name": "Pedro J. Martínez Martínez",
     "email": "im@pedro.to",
