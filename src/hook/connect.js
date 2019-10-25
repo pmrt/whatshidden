@@ -1,3 +1,22 @@
+function withCache(fn) {
+    let cached;
+	return () => cached = cached ? cached : fn()
+}
+
+function extractWBMods() {
+    let mods, id = Date.now();
+    window.webpackJsonp([], {
+        [id]: (mod, exports, __webpack_require__) => {
+                mods =  __webpack_require__.c;
+            }
+        },
+        [id]
+    );
+    return mods;
+}
+
+const getWBMods = withCache(extractWBMods);
+
 function getSession() {
     let
         key, value,
@@ -22,18 +41,6 @@ function setSession(items) {
         obj = items[i];
         window.localStorage.setItem(obj.key, obj.value);
     }
-}
-
-function getWBMods() {
-    let mods, id = Date.now();
-    window.webpackJsonp([], {
-        [id]: (mod, exports, __webpack_require__) => {
-                mods =  __webpack_require__.c;
-            }
-        },
-        [id]
-    );
-    return mods;
 }
 
 function getConstants() {
