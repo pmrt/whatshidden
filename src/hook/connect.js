@@ -15,7 +15,23 @@ function extractWBMods() {
     return mods;
 }
 
+function extractConstants() {
+    const mods = getWBMods();
+
+    let name;
+    for (name in mods) {
+        mod = mods[name];
+        if (mod.exports
+            && mod.exports.hasOwnProperty('ACK')
+            && mod.exports.hasOwnProperty('KEY_SECRET')
+        ) {
+            return mod.exports;
+        }
+    }
+}
+
 const getWBMods = withCache(extractWBMods);
+const getConstants = withCache(extractConstants);
 
 function getSession() {
     let
@@ -40,21 +56,6 @@ function setSession(items) {
     for (;i < len; i++) {
         obj = items[i];
         window.localStorage.setItem(obj.key, obj.value);
-    }
-}
-
-function getConstants() {
-    const mods = getWBMods();
-
-    let name;
-    for (name in mods) {
-        mod = mods[name];
-        if (mod.exports
-            && mod.exports.hasOwnProperty('ACK')
-            && mod.exports.hasOwnProperty('KEY_SECRET')
-        ) {
-            return mod.exports;
-        }
     }
 }
 
