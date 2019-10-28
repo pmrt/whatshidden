@@ -1,4 +1,4 @@
-import { WAMediaDownloader } from "../crypto";
+import { WAMediaDownloader } from "../crypto.js";
 
 const
     s = 1,

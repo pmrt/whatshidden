@@ -4,9 +4,9 @@ import { createWriteStream } from 'fs';
 import { createDecipheriv } from 'crypto';
 import hkdf from 'futoin-hkdf';
 
-import logger from './logger';
-import { HKDF_EXPAND_LENGTH } from './consts';
-import { getSenderPath } from './utils';
+import logger from './logger.js';
+import { HKDF_EXPAND_LENGTH } from './consts.js';
+import { getSenderPath } from './utils.js';
 
 function B64ToArrayBuffer(encKey) {
     for (var t = encKey.length, n = new Int32Array(t + t % 4), r = 0; r < t; r++) {

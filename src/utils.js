@@ -1,6 +1,6 @@
-import logger from './logger';
+import logger from './logger.js';
 import { unlink } from 'fs';
-import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH } from './consts';
+import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH } from './consts.js';
 import { join } from 'path';
 import mkdirp  from 'mkdirp';
 

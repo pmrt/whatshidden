@@ -14,15 +14,15 @@ import {
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
-} from './consts';
-import { MessageEvent } from './msg/events';
-import { extract } from './msg/message';
-import { MessageLogger } from './msg/logger';
-import logger, { LOG_LEVEL } from './logger';
-import { Session } from './session';
-import { isProd, exit, clearConsole} from './utils';
-import { recover } from './errors';
-import { name, version } from '../package.json';
+} from './consts.js';
+import { MessageEvent } from './msg/events.js';
+import { extract } from './msg/message.js';
+import { MessageLogger } from './msg/logger.js';
+import logger, { LOG_LEVEL } from './logger.js';
+import { Session } from './session.js';
+import { isProd, exit, clearConsole} from './utils.js';
+import { recover } from './errors.js';
+import packageConfig from '../package.json';
 
 export class WAContainer {
     constructor() {
@@ -335,8 +335,8 @@ export class WAContainer {
     async _init() {
         logger.info(
             '[%s v%s]: new instance from %s; prod_mode=%s; log_level=%s',
-            name,
-            version,
+            packageConfig.name,
+            packageConfig.version,
             process.cwd(),
             isProd,
             LOG_LEVEL,
