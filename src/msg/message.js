@@ -126,7 +126,7 @@ class Audio extends Media {
     }
 
     get fileExtension() {
-        return "m4a";
+        return "ogg";
     }
 }
 
