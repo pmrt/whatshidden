@@ -19,6 +19,8 @@ That's why this project is completely open-source and you're downloading and run
 
 For ARM architectures like most Raspberry Pi's you will need a chromium browser compatible with ARM and change the executablePath (I will add more info on this later, in the meantime and for reference see [issue #3](https://github.com/pmrt/whatshidden/issues/3)).
 
+Minimum 1GB RAM recommended (keep that in mind when buying a new Raspberry Pi).
+
 # Download and Installation
 
 ## Using git & npm
