@@ -29,6 +29,10 @@ class Message {
         return false
     }
 
+    toString() {
+        return "Unsupported message type";
+    }
+
     setTime(t) {
         const inMs = this._timestamp * ms;
         const date = new Date(inMs);
