@@ -271,6 +271,7 @@ export class WAContainer {
                     clearTimeout(timeout);
                     clearInterval(timer);
 
+                    logger.info("waiting for login..")
                     switch(await this._waitForLogin()) {
                         case LOGIN_STATE.LOGGED_IN:
                             return resolve(QR_SCAN_STATE.SCANNED);
@@ -307,12 +308,12 @@ export class WAContainer {
         switch (res) {
             case QR_SCAN_STATE.SCANNED:
                 clearConsole();
-                logger.info('QRCode successfully scanned');
+                logger.info('login succeed');
                 this.save();
                 break;
             case QR_SCAN_STATE.TIMEOUT:
                 logger.warn('QRCode scanning timeout.');
-                exit(0, "No user has scanned the QR Code. Quiting.. ");
+                exit(0, "no user has scanned the QR Code. Quiting.. ");
             case QR_SCAN_STATE.ERROR:
             default:
                 logger.error('QRCode scanning error. Unknown QRCode element state.');
