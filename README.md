@@ -15,7 +15,7 @@ You shouldn't. Yep, keep in mind you're scanning a QRCode and the app will have 
 That's why this project is completely open-source and you're downloading and running exactly the same (not either minified nor compiled) code you see here (via git clone), unlike some android apps out there which will log your notifications or will have access to your whole account too.
 
 # Requirements
-- **Node 10 or greather with npm** [[Download](https://nodejs.org/en/download/)]. You can check it by opening your terminal and typing `node -v` and `npm -v`.
+- **Node 12 or greather with npm** [[Download](https://nodejs.org/en/download/)][[How to update node](https://stackoverflow.com/questions/8191459/how-do-i-update-node-js)]. You can check it by opening your terminal and typing `node -v` and `npm -v`.
 
 For ARM architectures like most Raspberry Pi's you would need a chromium browser compatible with ARM and change the executablePath (I will add more info on this later, in the meantime and for reference see [issue #3](https://github.com/pmrt/whatshidden/issues/3)).
 

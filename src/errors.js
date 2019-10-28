@@ -1,5 +1,5 @@
-import logger from './logger';
-import { clearSession, exit } from './utils';
+import logger from './logger.js';
+import { clearSession, exit } from './utils.js';
 
 export function recover() {
     logger.error(

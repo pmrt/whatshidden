@@ -1,8 +1,8 @@
-import { FULL_DATA_PATH, FULL_CHAT_LOGS_PATH } from './consts';
-import logger from './logger';
-import { exit, ensureExists,  } from './utils';
+import { FULL_DATA_PATH, FULL_CHAT_LOGS_PATH } from './consts.js';
+import logger from './logger.js';
+import { exit, ensureExists,  } from './utils.js';
 
-import { WAContainer } from './container';
+import { WAContainer } from './container.js';
 
 const dirError = err => {
     if (err) {

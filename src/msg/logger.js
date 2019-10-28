@@ -1,25 +1,25 @@
-import { Container, format, transports } from 'winston';
-import { CHAT_LOGS_EXTENSION, CHAT_FILENAME } from '../consts';
+import winston from 'winston';
+import { CHAT_LOGS_EXTENSION, CHAT_FILENAME } from '../consts.js';
 import { join } from 'path';
-import { getSenderPath } from '../utils';
+import { getSenderPath } from '../utils.js';
 
 const loggerOts = {
-    format: format.combine(
-        format.splat(),
-        format.printf(info => `${info.message}`),
+    format: winston.format.combine(
+        winston.format.splat(),
+        winston.format.printf(info => `${info.message}`),
     ),
     maxSize: '1mb',
 }
 
 class Conversations {
     constructor() {
-        this.container = new Container();
+        this.container = new winston.Container();
     }
 
     add(id, sender) {
         const opts = {...loggerOts, ...{
                 transports: [
-                    new transports.File({
+                    new winston.transports.File({
                         filename: join(getSenderPath(sender), `${CHAT_FILENAME}.${CHAT_LOGS_EXTENSION}`),
                     })
                 ]
@@ -39,8 +39,7 @@ class Conversations {
 
 export class MessageLogger {
     constructor() {
-        const container = new Container();
-        this._chats = new Conversations(container);
+        this._chats = new Conversations();
     }
 
     // log a message with a provided `msg` <Message> instance (see message.js)

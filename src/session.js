@@ -1,7 +1,7 @@
 import { writeFile, readFile } from "fs";
 import { join } from "path";
-import { FULL_DATA_PATH, SESSION_FILE } from "./consts";
-import logger from "./logger";
+import { FULL_DATA_PATH, SESSION_FILE } from "./consts.js";
+import logger from "./logger.js";
 
 const filePath = join(FULL_DATA_PATH, SESSION_FILE);
 
