@@ -31,7 +31,7 @@ For ARM architectures like most Raspberry Pi's you would need a chromium browser
 6. After closing the terminal the process will terminate. Generally after running it for the first time and scanning the QRCode, you would want to exit with `CTRL + C` and have it run again with `nohup` or any command dedicated to run processes 24/7. Type `nohup npm run start:verbose &`. This will run your process in background and it won't terminate after closing your session. You can check the process by typing: `tail -f logs/app.log`. For more info about nohup head to [here](https://www.computerhope.com/unix/unohup.htm)
 
 ## Using npm (without git)
-1. Head to the repository https://github.com/pmrt/whatshidden and click on 'Download'
+1. Head to the repository https://github.com/pmrt/whatshidden (this page) and click on 'Clone or Download', then click on 'Download ZIP'
 2. Follow the same steps from above - step 3. But with the correct directory name you just downloaded (it should be `whatshidden-master`)
 
 ### Important notes
