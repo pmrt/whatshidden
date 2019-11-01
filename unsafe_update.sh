@@ -4,3 +4,5 @@
 git fetch origin master
 # set working tree to the last commit
 git reset --hard origin/master
+# install dependencies again
+npm install
