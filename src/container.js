@@ -37,6 +37,8 @@ export class WAContainer {
         this._tracker.on("wa:ready", this._onWAReady);
         this._tracker.on("wa:ready-timeout", this._onWATimeout);
 
+        this._waGlobals = {};
+        this._needRefresh = false;
         this._init();
     }
 
@@ -142,14 +144,19 @@ export class WAContainer {
     }
 
     /*
-        _reload refreshes the page and injects the needed scripts again
+        _reload refreshes the page and injects the needed scripts again. If
+        `exec` = true it'll execute the middleman when available.
     */
-    async _reload() {
+    async _reload(exec) {
         await this._page.reload({
             waitUntil: 'domcontentloaded',
         });
         logger.verbose('page refreshed');
         await this._addScript();
+
+        if (exec) {
+            await this._setupLoadWatcher();
+        }
     }
 
     /*
@@ -264,7 +271,7 @@ export class WAContainer {
             timeout = setTimeout(() => {
                 clearInterval(timer);
                 resolve(QR_SCAN_STATUS.TIMEOUT);
-            }, this.GIVE_UP_WAIT - EXPIRATION_MARGIN);
+            }, this._waGlobals.GIVE_UP_WAIT - EXPIRATION_MARGIN);
 
             logger.info("waiting for login..")
             timer = setInterval(async () => {
@@ -351,7 +358,8 @@ export class WAContainer {
                 await this._waitForQRCode();
                 code = await this._getCode();
                 const WAGlobals = await this._getWAGlobals();
-                this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
+                this._waGlobals.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
+                this._waGlobals.KEY_LAST_PUSHNAME = WAGlobals.KEY_LAST_PUSHNAME;
                 await this._startQR(code);
             }
 
