@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer';
 import qrcode from 'qrcode-terminal';
+import md5 from 'md5';
 
 import {
     USER_AGENT,
@@ -14,6 +15,7 @@ import {
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
+    NEED_REFRESH_COUNTER_BEFORE_FAIL,
 } from './consts.js';
 import { MessageEvent } from './msg/events.js';
 import { extract } from './msg/message.js';
@@ -21,8 +23,25 @@ import { MessageLogger } from './msg/logger.js';
 import logger, { LOG_LEVEL } from './logger.js';
 import { Session } from './session.js';
 import { isProd, exit, clearConsole} from './utils.js';
-import { recover } from './errors.js';
+import {
+    PAGE_WONT_LOAD,
+    TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION as TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION,
+    recover
+} from './errors.js';
 import packageConfig from '../package.json';
+import { encode } from './b64.js';
+
+async function _computeLastPushnameKey(lastwid, KEY_LAST_PUSHNAME) {
+    const key = `${lastwid}:${KEY_LAST_PUSHNAME}`;
+    let cache = {};
+    return () => {
+        const cached = cache[key];
+        if (cached) {
+            return cached;
+        }
+        return cache[key] = encode(md5(key));
+    }
+}
 
 export class WAContainer {
     constructor() {
@@ -38,7 +57,9 @@ export class WAContainer {
         this._tracker.on("wa:ready-timeout", this._onWATimeout);
 
         this._waGlobals = {};
+        this._getLastPushnameKey = function() {};
         this._needRefresh = false;
+        this._needRefreshAttempts = 0;
         this._init();
     }
 
@@ -69,6 +90,15 @@ export class WAContainer {
         return await this._page.evaluate(() => waitForReady());
     }
 
+    async _getLastWID() {
+        return await this._page.evaluate(() => getLastWID());
+    }
+
+    async _hasPushname() {
+        const key = await this._getLastPushnameKey();
+        return await this._page.evaluate((item) => storageHas(item), key);
+    }
+
     /*
         _canReceiveMessages checks if the session can receive messages. eg. a user
         can be logged in but another session has been opened on any other device.
@@ -76,7 +106,7 @@ export class WAContainer {
         message
     */
     async _canReceiveMessages() {
-
+        return await this._hasPushname();
     }
 
     /*
@@ -94,14 +124,24 @@ export class WAContainer {
             }
 
             if (!isLoggedIn) {
-                recover();
+                recover(PAGE_WONT_LOAD);
+            }
+
+            if (this._needRefreshAttempts >= NEED_REFRESH_COUNTER_BEFORE_FAIL) {
+                recover(TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION);
             }
 
             if (this._needRefresh) {
+                this._needRefreshAttempts++;
                 this._needRefresh = false;
+                logger.verbose("attempting to recover the session.. [attempt #%s]", this._needRefreshAttempts);
                 this._reload(true);
             } else if (!await this._canReceiveMessages()) {
+                logger.warn("can't receive messages, you may have logged in on another device (WhatsApp Web only allow 1 session at a time)");
+                logger.warn("-> refresh scheduled for the next check, no message will be logged in the meantime");
                 this._needRefresh = true;
+            } else {
+                this._needRefreshAttempts = 0;
             }
 
             this._check(msToCheck);
@@ -133,9 +173,18 @@ export class WAContainer {
         _onWAReady handles 'wa:ready' event. ie. When WhatsApp web has finished
         loading and user is logged in
     */
-    _onWAReady() {
+    async _onWAReady() {
         logger.verbose("WhatsApp Web finished loading");
-        this._startMiddleman();
+        await this._setLastPushnameKeyFunction();
+        await this._startMiddleman();
+    }
+
+    async _setLastPushnameKeyFunction() {
+        const { KEY_LAST_PUSHNAME } = await this._getWAGlobals();
+        this._getLastPushnameKey = await _computeLastPushnameKey(
+            await this._getLastWID(),
+            this._waGlobals.KEY_LAST_PUSHNAME = KEY_LAST_PUSHNAME,
+        );
     }
 
     /*
@@ -145,7 +194,7 @@ export class WAContainer {
     async _onWATimeout() {
         logger.verbose("WhatsApp Web loading time limit exceeded");
         if (!await this._isLoggedIn()) {
-            recover();
+            recover(PAGE_WONT_LOAD);
         }
         exit(0);
     }
@@ -374,9 +423,8 @@ export class WAContainer {
             if (!await this._isLoggedIn()) {
                 await this._waitForQRCode();
                 code = await this._getCode();
-                const WAGlobals = await this._getWAGlobals();
-                this._waGlobals.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
-                this._waGlobals.KEY_LAST_PUSHNAME = WAGlobals.KEY_LAST_PUSHNAME;
+                const { GIVE_UP_WAIT } = await this._getWAGlobals();
+                this._waGlobals.GIVE_UP_WAIT = GIVE_UP_WAIT;
                 await this._startQR(code);
             }
 

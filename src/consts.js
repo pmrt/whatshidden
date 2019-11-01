@@ -36,6 +36,9 @@ export const FULL_DATA_PATH = join(process.cwd(), DATA_DIR);
 export const SESSION_FILE = 'session.json';
 // interval after which the app will check the status again (milliseconds)
 export const CHECK_INTERVAL = 900e3;
+// times before fail if a refresh is needed (for reference: 100 attempts every 15 min (ie. CHECK_INTERVAL) = about 25h passed since the app
+// didn't log any message consistently)
+export const NEED_REFRESH_COUNTER_BEFORE_FAIL = 100;
 // expand key length (bytes)
 export const HKDF_EXPAND_LENGTH = 112;
 
