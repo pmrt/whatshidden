@@ -1,6 +1,6 @@
 import logger from './logger.js';
 import { unlink } from 'fs';
-import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH } from './consts.js';
+import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH, MEDIA_DIR } from './consts.js';
 import { join } from 'path';
 import mkdirp  from 'mkdirp';
 
@@ -26,7 +26,7 @@ export function clearSession() {
 
 export function getSenderPath(sender) {
     const path = join(FULL_CHAT_LOGS_PATH, sender);
-    ensureExists(path, err => {
+    ensureExists(join(path, MEDIA_DIR), err => {
         if (err) {
             logger.warn(err);
             return;
