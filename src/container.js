@@ -240,6 +240,7 @@ export class WAContainer {
         let launchOpts = {
             headless: isProd,
             devtools: !isProd,
+            dumpio: !!program.dumpio,
         };
 
         if (program.browser) {
