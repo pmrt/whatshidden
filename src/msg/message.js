@@ -9,6 +9,7 @@ class Message {
     constructor(msgData) {
         this._type = msgData.type;
         // timestamp (in seconds)
+        this._id = msgData.id;
         this._timestamp = msgData.t * s;
         this.setTime(msgData.t * s);
         this._sender = msgData.from;
@@ -22,6 +23,13 @@ class Message {
         }
     }
 
+    get participant() {
+        const p = parseSender(this._id.participant);
+        if (p.number) {
+            return p.number;
+        }
+    }
+
     get at() {
        return this._timestr;
     }
@@ -32,6 +40,17 @@ class Message {
 
     toString() {
         return "Unsupported message type";
+    }
+
+    toLog() {
+        if (this.isGroup()) {
+            return `(${this.participant}) -> ${this.toString()}`;
+        }
+        return this.toString();
+    }
+
+    isGroup() {
+        return !!this._id.participant;
     }
 
     setTime(t) {
