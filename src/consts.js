@@ -34,9 +34,8 @@ export const DATA_DIR = '.data';
 export const FULL_DATA_PATH = join(process.cwd(), DATA_DIR);
 // session file (with extension)
 export const SESSION_FILE = 'session.json';
-// interval after which the app will check again the login status to prevent stale
-// session data. (milliseconds)
-export const LOGIN_CHECK_INTERVAL = 900e3;
+// interval after which the app will check the status again (milliseconds)
+export const CHECK_INTERVAL = 900e3;
 // expand key length (bytes)
 export const HKDF_EXPAND_LENGTH = 112;
 

@@ -10,7 +10,7 @@ import {
     LOGIN_STATUS,
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
-    LOGIN_CHECK_INTERVAL,
+    CHECK_INTERVAL,
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
@@ -70,13 +70,12 @@ export class WAContainer {
     }
 
     /*
-        _loginCheck will check the login status after `msToCheck` milliseconds.
+        _check will check the login status after `msToCheck` milliseconds.
         If a callback `cb` is provided, it'll execute the callback after the
         time has elapsed, otherwise the function turns into a recursive one with
-        a pre-defined behaviour (it'll invoke recover if user is not logged-in
-        by that time).
+        a pre-defined behaviour.
     */
-    _loginCheck(msToCheck, cb) {
+    _check(msToCheck, cb) {
         setTimeout(async () => {
             logger.verbose('checking login state..');
             const isLoggedIn = await this._isLoggedIn();
@@ -87,7 +86,7 @@ export class WAContainer {
             if (!isLoggedIn) {
                 recover();
             }
-            this._loginCheck(msToCheck);
+            this._check(msToCheck);
         }, msToCheck);
     }
 
@@ -365,7 +364,7 @@ export class WAContainer {
 
             logger.info("waiting for WhatsApp Web to load..")
             this._setupLoadWatcher();
-            this._loginCheck(LOGIN_CHECK_INTERVAL);
+            this._check(CHECK_INTERVAL);
 
         } catch(e) {
             if (this._browser) {
