@@ -173,7 +173,10 @@ export class WAContainer {
             return;
         }
 
-        logger.verbose(`-> ${msg.sender} [${msg.at}] ${msg.toString()}`);
+        const log = msg.isGroup()
+            ? `-> Group ${msg.sender} [${msg.at}] (${msg.participant}) ${msg.toString()}`
+            : `-> ${msg.sender} [${msg.at}] ${msg.toString()}`
+        logger.verbose(log);
     }
 
     /*
