@@ -8,7 +8,7 @@ import logger from './logger.js';
 import { HKDF_EXPAND_LENGTH } from './consts.js';
 import { getSenderPath } from './utils.js';
 
-import { decode } from './b64.js';
+import { decode, toB64 } from './b64.js';
 
 function HKDF(secret, info, length) {
     const expanded = hkdf(
@@ -38,14 +38,14 @@ export class WAMediaDownloader {
     }
 
     async downloadAndDecrypt() {
-        logger.verbose("download and decrypt of media file '%s' requested..", this._hash);
+        const filename = toB64(this._hash);
+
+        logger.verbose("download and decrypt of media file '%s' requested..", filename);
 
         let macSize = 10;
         let bytesRead = 0;
-
         const { info, ext } = this._type;
         const bundle = HKDF(this._key, info, HKDF_EXPAND_LENGTH);
-        const filename = encodeURIComponent(this._hash);
         const output = createWriteStream(join(getSenderPath(`${this._sender}`), `${filename}.${ext}`));
         const decryption = createDecipheriv(
             'aes-256-cbc',

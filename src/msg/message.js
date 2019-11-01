@@ -1,4 +1,5 @@
 import { WAMediaDownloader } from "../crypto.js";
+import { toB64 } from "../b64.js";
 
 const
     s = 1,
@@ -63,7 +64,7 @@ class Media extends Message {
     }
 
     toString() {
-        return `${this.typename} message (${encodeURIComponent(this._filehash)})`;
+        return `${this.typename} message (${toB64(this._filehash)})`;
     }
 
     isMedia() {
