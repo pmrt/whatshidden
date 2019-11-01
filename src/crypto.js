@@ -46,7 +46,7 @@ export class WAMediaDownloader {
         const { info, ext } = this._type;
         const bundle = HKDF(this._key, info, HKDF_EXPAND_LENGTH);
         const filename = encodeURIComponent(this._hash);
-        const output = createWriteStream(join(getSenderPath(`+${this._sender}`), `${filename}.${ext}`));
+        const output = createWriteStream(join(getSenderPath(`${this._sender}`), `${filename}.${ext}`));
         const decryption = createDecipheriv(
             'aes-256-cbc',
             Buffer.from(bundle.encKey),

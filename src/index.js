@@ -28,7 +28,5 @@ program
     .option('-d, --dumpio', 'Show chromium logs');
 
 program.parse(process.argv);
-console.log(program.browser)
-
 
 new WAContainer();
