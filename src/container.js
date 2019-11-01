@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import qrcode from 'qrcode-terminal';
 import md5 from 'md5';
+import program from 'commander';
 
 import {
     USER_AGENT,
@@ -230,10 +231,17 @@ export class WAContainer {
         browser will be in headless mode
     */
     async _launch() {
-        this._browser = await puppeteer.launch({
+        let launchOpts = {
             headless: isProd,
             devtools: !isProd,
-        });
+        };
+
+        if (program.browser) {
+            logger.verbose("using chromium from %s", program.browser);
+            launchOpts.executablePath = program.browser;
+        }
+
+        this._browser = await puppeteer.launch(launchOpts);
         logger.verbose("using %s", await this._browser.version());
         this._page = await this._browser.newPage();
 
