@@ -8,8 +8,8 @@ const
 class Message {
     constructor(msgData) {
         this._type = msgData.type;
-        // timestamp (in seconds)
         this._id = msgData.id;
+        // timestamp (in seconds)
         this._timestamp = msgData.t * s;
         this.setTime(msgData.t * s);
         this._sender = msgData.from;
