@@ -34,19 +34,21 @@ export const DATA_DIR = '.data';
 export const FULL_DATA_PATH = join(process.cwd(), DATA_DIR);
 // session file (with extension)
 export const SESSION_FILE = 'session.json';
-// interval after which the app will check again the login status to prevent stale
-// session data. (milliseconds)
-export const LOGIN_CHECK_INTERVAL = 900e3;
+// interval after which the app will check the status again (milliseconds)
+export const CHECK_INTERVAL = 900e3;
+// times before fail if a refresh is needed (for reference: 100 attempts every 15 min (ie. CHECK_INTERVAL) = about 25h passed since the app
+// didn't log any message consistently)
+export const NEED_REFRESH_COUNTER_BEFORE_FAIL = 100;
 // expand key length (bytes)
 export const HKDF_EXPAND_LENGTH = 112;
 
-export const QR_SCAN_STATE = {
+export const QR_SCAN_STATUS = {
     SCANNED: 1,
     TIMEOUT: 2,
     ERROR: 3,
 }
 
-export const LOGIN_STATE = {
+export const LOGIN_STATUS = {
     LOGGED_IN: 1,
     TIMEOUT: 2,
     ERROR: 3,

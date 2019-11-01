@@ -1,19 +1,21 @@
 import puppeteer from 'puppeteer';
 import qrcode from 'qrcode-terminal';
+import md5 from 'md5';
 
 import {
     USER_AGENT,
     WHATSAPP_WEB_URL,
     EXPIRATION_MARGIN,
     QR_OBSERVE_INTERVAL,
-    QR_SCAN_STATE,
-    LOGIN_STATE,
+    QR_SCAN_STATUS,
+    LOGIN_STATUS,
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
-    LOGIN_CHECK_INTERVAL,
+    CHECK_INTERVAL,
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
+    NEED_REFRESH_COUNTER_BEFORE_FAIL,
 } from './consts.js';
 import { MessageEvent } from './msg/events.js';
 import { extract } from './msg/message.js';
@@ -21,8 +23,25 @@ import { MessageLogger } from './msg/logger.js';
 import logger, { LOG_LEVEL } from './logger.js';
 import { Session } from './session.js';
 import { isProd, exit, clearConsole} from './utils.js';
-import { recover } from './errors.js';
+import {
+    PAGE_WONT_LOAD,
+    TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION as TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION,
+    recover
+} from './errors.js';
 import packageConfig from '../package.json';
+import { encode } from './b64.js';
+
+async function _computeLastPushnameKey(lastwid, KEY_LAST_PUSHNAME) {
+    const key = `${lastwid}:${KEY_LAST_PUSHNAME}`;
+    let cache = {};
+    return () => {
+        const cached = cache[key];
+        if (cached) {
+            return cached;
+        }
+        return cache[key] = encode(md5(key));
+    }
+}
 
 export class WAContainer {
     constructor() {
@@ -37,6 +56,10 @@ export class WAContainer {
         this._tracker.on("wa:ready", this._onWAReady);
         this._tracker.on("wa:ready-timeout", this._onWATimeout);
 
+        this._waGlobals = {};
+        this._getLastPushnameKey = function() {};
+        this._needRefresh = false;
+        this._needRefreshAttempts = 0;
         this._init();
     }
 
@@ -67,14 +90,32 @@ export class WAContainer {
         return await this._page.evaluate(() => waitForReady());
     }
 
+    async _getLastWID() {
+        return await this._page.evaluate(() => getLastWID());
+    }
+
+    async _hasPushname() {
+        const key = await this._getLastPushnameKey();
+        return await this._page.evaluate((item) => storageHas(item), key);
+    }
+
     /*
-        _loginCheck will check the login status after `msToCheck` milliseconds.
+        _canReceiveMessages checks if the session can receive messages. eg. a user
+        can be logged in but another session has been opened on any other device.
+        Since Whatsapp Web only allows 1 session at a time it won't receive any
+        message
+    */
+    async _canReceiveMessages() {
+        return await this._hasPushname();
+    }
+
+    /*
+        _check will check the login status after `msToCheck` milliseconds.
         If a callback `cb` is provided, it'll execute the callback after the
         time has elapsed, otherwise the function turns into a recursive one with
-        a pre-defined behaviour (it'll invoke recover if user is not logged-in
-        by that time).
+        a pre-defined behaviour.
     */
-    _loginCheck(msToCheck, cb) {
+    _check(msToCheck, cb) {
         setTimeout(async () => {
             logger.verbose('checking login state..');
             const isLoggedIn = await this._isLoggedIn();
@@ -83,9 +124,27 @@ export class WAContainer {
             }
 
             if (!isLoggedIn) {
-                recover();
+                recover(PAGE_WONT_LOAD);
             }
-            this._loginCheck(msToCheck);
+
+            if (this._needRefreshAttempts >= NEED_REFRESH_COUNTER_BEFORE_FAIL) {
+                recover(TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION);
+            }
+
+            if (this._needRefresh) {
+                this._needRefreshAttempts++;
+                this._needRefresh = false;
+                logger.verbose("attempting to recover the session.. [attempt #%s]", this._needRefreshAttempts);
+                this._reload(true);
+            } else if (!await this._canReceiveMessages()) {
+                logger.warn("can't receive messages, you may have logged in on another device (WhatsApp Web only allow 1 session at a time)");
+                logger.warn("-> refresh scheduled for the next check, no message will be logged in the meantime");
+                this._needRefresh = true;
+            } else {
+                this._needRefreshAttempts = 0;
+            }
+
+            this._check(msToCheck);
         }, msToCheck);
     }
 
@@ -114,9 +173,18 @@ export class WAContainer {
         _onWAReady handles 'wa:ready' event. ie. When WhatsApp web has finished
         loading and user is logged in
     */
-    _onWAReady() {
+    async _onWAReady() {
         logger.verbose("WhatsApp Web finished loading");
-        this._startMiddleman();
+        await this._setLastPushnameKeyFunction();
+        await this._startMiddleman();
+    }
+
+    async _setLastPushnameKeyFunction() {
+        const { KEY_LAST_PUSHNAME } = await this._getWAGlobals();
+        this._getLastPushnameKey = await _computeLastPushnameKey(
+            await this._getLastWID(),
+            this._waGlobals.KEY_LAST_PUSHNAME = KEY_LAST_PUSHNAME,
+        );
     }
 
     /*
@@ -126,7 +194,7 @@ export class WAContainer {
     async _onWATimeout() {
         logger.verbose("WhatsApp Web loading time limit exceeded");
         if (!await this._isLoggedIn()) {
-            recover();
+            recover(PAGE_WONT_LOAD);
         }
         exit(0);
     }
@@ -142,14 +210,19 @@ export class WAContainer {
     }
 
     /*
-        _reload refreshes the page and injects the needed scripts again
+        _reload refreshes the page and injects the needed scripts again. If
+        `exec` = true it'll execute the middleman when available.
     */
-    async _reload() {
+    async _reload(exec) {
         await this._page.reload({
             waitUntil: 'domcontentloaded',
         });
         logger.verbose('page refreshed');
         await this._addScript();
+
+        if (exec) {
+            await this._setupLoadWatcher();
+        }
     }
 
     /*
@@ -241,14 +314,14 @@ export class WAContainer {
             let timeout, timer;
             timeout = setTimeout(() => {
                 clearInterval(timer);
-                resolve(LOGIN_STATE.TIMEOUT);
+                resolve(LOGIN_STATUS.TIMEOUT);
             }, LOGIN_OBSERVE_TIMEOUT);
 
             timer = setInterval(async () => {
                 if (await this._isLoggedIn()) {
                     clearTimeout(timeout);
                     clearInterval(timer);
-                    resolve(LOGIN_STATE.LOGGED_IN);
+                    resolve(LOGIN_STATUS.LOGGED_IN);
                 }
             }, LOGIN_OBSERVE_INTERVAL);
         });
@@ -263,8 +336,8 @@ export class WAContainer {
 
             timeout = setTimeout(() => {
                 clearInterval(timer);
-                resolve(QR_SCAN_STATE.TIMEOUT);
-            }, this.GIVE_UP_WAIT - EXPIRATION_MARGIN);
+                resolve(QR_SCAN_STATUS.TIMEOUT);
+            }, this._waGlobals.GIVE_UP_WAIT - EXPIRATION_MARGIN);
 
             logger.info("waiting for login..")
             timer = setInterval(async () => {
@@ -274,11 +347,11 @@ export class WAContainer {
 
                     process.stdout.write(".");
                     switch(await this._waitForLogin()) {
-                        case LOGIN_STATE.LOGGED_IN:
-                            return resolve(QR_SCAN_STATE.SCANNED);
-                        case LOGIN_STATE.TIMEOUT:
+                        case LOGIN_STATUS.LOGGED_IN:
+                            return resolve(QR_SCAN_STATUS.SCANNED);
+                        case LOGIN_STATUS.TIMEOUT:
                         default:
-                            return resolve(QR_SCAN_STATE.ERROR);
+                            return resolve(QR_SCAN_STATUS.ERROR);
                     }
                 }
 
@@ -307,15 +380,15 @@ export class WAContainer {
         }
 
         switch (res) {
-            case QR_SCAN_STATE.SCANNED:
+            case QR_SCAN_STATUS.SCANNED:
                 clearConsole();
                 logger.info('login succeeded');
                 this.save();
                 break;
-            case QR_SCAN_STATE.TIMEOUT:
+            case QR_SCAN_STATUS.TIMEOUT:
                 logger.warn('QRCode scanning timeout.');
                 exit(0, "no user has scanned the QR Code. Quiting.. ");
-            case QR_SCAN_STATE.ERROR:
+            case QR_SCAN_STATUS.ERROR:
             default:
                 logger.error('QRCode scanning error. Unknown QRCode element state.');
                 exit(1);
@@ -350,14 +423,14 @@ export class WAContainer {
             if (!await this._isLoggedIn()) {
                 await this._waitForQRCode();
                 code = await this._getCode();
-                const WAGlobals = await this._getWAGlobals();
-                this.GIVE_UP_WAIT = WAGlobals.GIVE_UP_WAIT;
+                const { GIVE_UP_WAIT } = await this._getWAGlobals();
+                this._waGlobals.GIVE_UP_WAIT = GIVE_UP_WAIT;
                 await this._startQR(code);
             }
 
             logger.info("waiting for WhatsApp Web to load..")
-            this._setupLoadWatcher();
-            this._loginCheck(LOGIN_CHECK_INTERVAL);
+            await this._setupLoadWatcher();
+            this._check(CHECK_INTERVAL);
 
         } catch(e) {
             if (this._browser) {

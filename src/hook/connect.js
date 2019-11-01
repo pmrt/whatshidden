@@ -121,7 +121,19 @@ function emitMessage(data) {
     emit('wa:message', data);
 }
 
+function storageHas(item) {
+    return !!window.localStorage.getItem(item);
+}
+
+function storageGet(item) {
+    return JSON.parse(window.localStorage.getItem(item));
+}
+
 function isLoggedIn() {
-    return !!window.localStorage.getItem("WASecretBundle")
-        && !!window.localStorage.getItem("logout-token")
+    return !!storageHas("WASecretBundle")
+        && !!storageHas("logout-token")
+}
+
+function getLastWID() {
+    return storageGet("last-wid");
 }
