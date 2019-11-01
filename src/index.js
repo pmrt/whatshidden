@@ -24,7 +24,8 @@ process.on('SIGINT', sig =>
 program
     .version(packageConfig.version)
     .option('-b, --browser <path>', 'Use a different chromium browser with the provided executable path')
-    .option('-s, -ss, --screenshot', 'Take a screenshot on each check');
+    .option('-s, -ss, --screenshot', 'Take a screenshot on each check')
+    .option('-d, --dumpio', 'Show chromium logs');
 
 program.parse(process.argv);
 console.log(program.browser)
