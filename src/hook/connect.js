@@ -130,9 +130,8 @@ function storageGet(item) {
 }
 
 function isLoggedIn() {
-    const { KEY_SECRET_BUNDLE, KEY_LOGOUT_TOKEN } = getConstants();
-    return !!storageHas(KEY_SECRET_BUNDLE)
-        && !!storageHas(KEY_LOGOUT_TOKEN);
+    return !!storageHas("WASecretBundle")
+        && !!storageHas("logout-token");
 }
 
 function getLastWID() {
