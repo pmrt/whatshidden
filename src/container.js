@@ -266,12 +266,13 @@ export class WAContainer {
                 resolve(QR_SCAN_STATE.TIMEOUT);
             }, this.GIVE_UP_WAIT - EXPIRATION_MARGIN);
 
+            logger.info("waiting for login..")
             timer = setInterval(async () => {
                 if (!await this._hasQRCode()) {
                     clearTimeout(timeout);
                     clearInterval(timer);
 
-                    logger.info("waiting for login..")
+                    process.stdout.write(".");
                     switch(await this._waitForLogin()) {
                         case LOGIN_STATE.LOGGED_IN:
                             return resolve(QR_SCAN_STATE.SCANNED);
