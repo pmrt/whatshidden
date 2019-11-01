@@ -19,7 +19,7 @@ export const QR_OBSERVE_INTERVAL = 50;
 // time to observe the login state again (milliseconds)
 export const LOGIN_OBSERVE_INTERVAL = 100;
 // time to timeout login state observation (milliseconds)
-export const LOGIN_OBSERVE_TIMEOUT = 30e3;
+export const LOGIN_OBSERVE_TIMEOUT = 45e3;
 // directory name of chat logs
 export const CHAT_LOGS_DIR = 'chats';
 // directory name of decrypted media
