@@ -1,7 +1,7 @@
 {
   "name": "whatshidden",
   "type": "module",
-  "version": "1.1.0-beta",
+  "version": "1.2.0-beta",
   "description": "Read deleted WhatsApp messages",
   "main": "src/index.js",
   "scripts": {
@@ -32,6 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "babel-node": "0.0.1-security",
+    "commander": "^4.0.0",
     "futoin-hkdf": "^1.2.1",
     "md5": "^2.2.1",
     "mkdirp": "^0.5.1",
