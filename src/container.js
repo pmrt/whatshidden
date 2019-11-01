@@ -309,7 +309,7 @@ export class WAContainer {
         switch (res) {
             case QR_SCAN_STATE.SCANNED:
                 clearConsole();
-                logger.info('login succeed');
+                logger.info('login succeeded');
                 this.save();
                 break;
             case QR_SCAN_STATE.TIMEOUT:
