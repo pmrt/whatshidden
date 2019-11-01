@@ -139,7 +139,7 @@ export class WAContainer {
                 logger.verbose("attempting to recover the session.. [attempt #%s]", this._needRefreshAttempts);
                 this._reload(true);
             } else if (!await this._canReceiveMessages()) {
-                logger.warn("can't receive messages, you may have logged in on another device (WhatsApp Web only allow 1 session at a time)");
+                logger.warn("can't receive messages, you may have logged in on another device (WhatsApp Web only allows 1 session at a time)");
                 logger.warn("-> refresh scheduled for the next check, no message will be logged in the meantime");
                 this._needRefresh = true;
             } else {
