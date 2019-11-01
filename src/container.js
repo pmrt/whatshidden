@@ -70,6 +70,16 @@ export class WAContainer {
     }
 
     /*
+        _canReceiveMessages checks if the session can receive messages. eg. a user
+        can be logged in but another session has been opened on any other device.
+        Since Whatsapp Web only allows 1 session at a time it won't receive any
+        message
+    */
+    async _canReceiveMessages() {
+
+    }
+
+    /*
         _check will check the login status after `msToCheck` milliseconds.
         If a callback `cb` is provided, it'll execute the callback after the
         time has elapsed, otherwise the function turns into a recursive one with
@@ -86,6 +96,14 @@ export class WAContainer {
             if (!isLoggedIn) {
                 recover();
             }
+
+            if (this._needRefresh) {
+                this._needRefresh = false;
+                this._reload(true);
+            } else if (!await this._canReceiveMessages()) {
+                this._needRefresh = true;
+            }
+
             this._check(msToCheck);
         }, msToCheck);
     }
@@ -363,7 +381,7 @@ export class WAContainer {
             }
 
             logger.info("waiting for WhatsApp Web to load..")
-            this._setupLoadWatcher();
+            await this._setupLoadWatcher();
             this._check(CHECK_INTERVAL);
 
         } catch(e) {
