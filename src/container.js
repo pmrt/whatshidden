@@ -17,6 +17,7 @@ import {
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
     NEED_REFRESH_COUNTER_BEFORE_FAIL,
+    CHECK_LAST_SCREENSHOT_FILENAME,
 } from './consts.js';
 import { MessageEvent } from './msg/events.js';
 import { extract } from './msg/message.js';
@@ -145,6 +146,11 @@ export class WAContainer {
                 this._needRefreshAttempts = 0;
             }
 
+            if (program.screenshot) {
+                await this._page.screenshot({
+                    path: `logs/${CHECK_LAST_SCREENSHOT_FILENAME}.png`
+                });
+            }
             this._check(msToCheck);
         }, msToCheck);
     }

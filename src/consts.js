@@ -39,6 +39,8 @@ export const CHECK_INTERVAL = 900e3;
 // times before fail if a refresh is needed (for reference: 100 attempts every 15 min (ie. CHECK_INTERVAL) = about 25h passed since the app
 // didn't log any message consistently)
 export const NEED_REFRESH_COUNTER_BEFORE_FAIL = 100;
+// filename of the last check screenshot
+export const CHECK_LAST_SCREENSHOT_FILENAME = 'last_check';
 // expand key length (bytes)
 export const HKDF_EXPAND_LENGTH = 112;
 
