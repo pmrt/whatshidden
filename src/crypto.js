@@ -5,7 +5,7 @@ import { createDecipheriv } from 'crypto';
 import hkdf from 'futoin-hkdf';
 
 import logger from './logger.js';
-import { HKDF_EXPAND_LENGTH } from './consts.js';
+import { HKDF_EXPAND_LENGTH, MEDIA_DIR } from './consts.js';
 import { getSenderPath } from './utils.js';
 
 import { decode, toB64 } from './b64.js';
@@ -46,7 +46,7 @@ export class WAMediaDownloader {
         let bytesRead = 0;
         const { info, ext } = this._type;
         const bundle = HKDF(this._key, info, HKDF_EXPAND_LENGTH);
-        const output = createWriteStream(join(getSenderPath(`${this._sender}`), `${filename}.${ext}`));
+        const output = createWriteStream(join(getSenderPath(`${this._sender}`), MEDIA_DIR, `${filename}.${ext}`));
         const decryption = createDecipheriv(
             'aes-256-cbc',
             Buffer.from(bundle.encKey),

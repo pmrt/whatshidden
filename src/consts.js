@@ -22,6 +22,8 @@ export const LOGIN_OBSERVE_INTERVAL = 100;
 export const LOGIN_OBSERVE_TIMEOUT = 30e3;
 // directory name of chat logs
 export const CHAT_LOGS_DIR = 'chats';
+// directory name of decrypted media
+export const MEDIA_DIR = 'attachments';
 // path to chat logs
 export const FULL_CHAT_LOGS_PATH = join(process.cwd(), CHAT_LOGS_DIR);
 // chat log filename
