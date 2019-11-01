@@ -6,8 +6,8 @@ import {
     WHATSAPP_WEB_URL,
     EXPIRATION_MARGIN,
     QR_OBSERVE_INTERVAL,
-    QR_SCAN_STATE,
-    LOGIN_STATE,
+    QR_SCAN_STATUS,
+    LOGIN_STATUS,
     LOGIN_OBSERVE_INTERVAL,
     LOGIN_OBSERVE_TIMEOUT,
     LOGIN_CHECK_INTERVAL,
@@ -241,14 +241,14 @@ export class WAContainer {
             let timeout, timer;
             timeout = setTimeout(() => {
                 clearInterval(timer);
-                resolve(LOGIN_STATE.TIMEOUT);
+                resolve(LOGIN_STATUS.TIMEOUT);
             }, LOGIN_OBSERVE_TIMEOUT);
 
             timer = setInterval(async () => {
                 if (await this._isLoggedIn()) {
                     clearTimeout(timeout);
                     clearInterval(timer);
-                    resolve(LOGIN_STATE.LOGGED_IN);
+                    resolve(LOGIN_STATUS.LOGGED_IN);
                 }
             }, LOGIN_OBSERVE_INTERVAL);
         });
@@ -263,7 +263,7 @@ export class WAContainer {
 
             timeout = setTimeout(() => {
                 clearInterval(timer);
-                resolve(QR_SCAN_STATE.TIMEOUT);
+                resolve(QR_SCAN_STATUS.TIMEOUT);
             }, this.GIVE_UP_WAIT - EXPIRATION_MARGIN);
 
             logger.info("waiting for login..")
@@ -274,11 +274,11 @@ export class WAContainer {
 
                     process.stdout.write(".");
                     switch(await this._waitForLogin()) {
-                        case LOGIN_STATE.LOGGED_IN:
-                            return resolve(QR_SCAN_STATE.SCANNED);
-                        case LOGIN_STATE.TIMEOUT:
+                        case LOGIN_STATUS.LOGGED_IN:
+                            return resolve(QR_SCAN_STATUS.SCANNED);
+                        case LOGIN_STATUS.TIMEOUT:
                         default:
-                            return resolve(QR_SCAN_STATE.ERROR);
+                            return resolve(QR_SCAN_STATUS.ERROR);
                     }
                 }
 
@@ -307,15 +307,15 @@ export class WAContainer {
         }
 
         switch (res) {
-            case QR_SCAN_STATE.SCANNED:
+            case QR_SCAN_STATUS.SCANNED:
                 clearConsole();
                 logger.info('login succeeded');
                 this.save();
                 break;
-            case QR_SCAN_STATE.TIMEOUT:
+            case QR_SCAN_STATUS.TIMEOUT:
                 logger.warn('QRCode scanning timeout.');
                 exit(0, "no user has scanned the QR Code. Quiting.. ");
-            case QR_SCAN_STATE.ERROR:
+            case QR_SCAN_STATUS.ERROR:
             default:
                 logger.error('QRCode scanning error. Unknown QRCode element state.');
                 exit(1);

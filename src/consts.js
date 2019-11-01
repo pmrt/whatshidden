@@ -40,13 +40,13 @@ export const LOGIN_CHECK_INTERVAL = 900e3;
 // expand key length (bytes)
 export const HKDF_EXPAND_LENGTH = 112;
 
-export const QR_SCAN_STATE = {
+export const QR_SCAN_STATUS = {
     SCANNED: 1,
     TIMEOUT: 2,
     ERROR: 3,
 }
 
-export const LOGIN_STATE = {
+export const LOGIN_STATUS = {
     LOGGED_IN: 1,
     TIMEOUT: 2,
     ERROR: 3,
