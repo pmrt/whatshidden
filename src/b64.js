@@ -32,8 +32,8 @@ function B64ToArrayBuffer(encKey) {
     return c
 }
 
-function arrayBufferToB64(arrBuffer) {
-    return Buffer.from(arrBuffer).toString("base64");
+export function toB64(exp) {
+    return Buffer.from(exp).toString("base64");
 }
 
 function hexToArayBuffer(hex) {
@@ -54,7 +54,7 @@ function decodeB64(encKey) {
 }
 
 export function encode(str) {
-    return arrayBufferToB64(hexToArayBuffer(str));
+    return toB64(hexToArayBuffer(str));
 }
 
 export function decode(arrType, exp) {
