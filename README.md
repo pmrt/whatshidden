@@ -20,7 +20,7 @@
 
 What's hidden? — Allows you to log and read deleted WhatsApp messages, as well as Image and Audio messages.
 
-It won't log any Android notification: the application makes use of a modified version of WhatsApp Web to log the messages instead. By using an alternative method, scrapping is only used to get the QRCode.
+It won't log any Android notification: the application makes use of a modified version of WhatsApp Web to log the messages instead. By using an alternative method scrapping is only used to get the QRCode.
 
 As a result, **you won't need an Android phone** in order to see the recalled messages. Also, there is no message length limit, **you'll see the full message** and **you can see images or listen to any audio message without entering WhatsApp** as they will be downloaded and decrypted as soon as you receive the message, as long as your phone has a working internet connection.
 
