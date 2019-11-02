@@ -1,3 +1,15 @@
+# Table of Contents
+
+- [**I. Whatshidden**](#whatshidden)
+- [**II. Requirements**](#requirements)
+- [**III. Limitations**](#limitations)
+- [**IV. Download and Usage**](#download-and-usage)
+- [**V. Update**](#update)
+- [**VI. FAQ**](#faq)
+- [**VII. Suggestion and Issues**](#suggestions-and-issues)
+- [**VIII. Contact**](#contact)
+---
+
 # Whatshidden
 
 What's hidden? — Allows you to log and read deleted WhatsApp messages, as well as Image and Audio messages.
@@ -17,7 +29,7 @@ That's why this project is completely open-source and you're downloading and run
 # Requirements
 - **Node 12 or greather with npm** [[Download](https://nodejs.org/en/download/)][[How to update node](https://stackoverflow.com/questions/8191459/how-do-i-update-node-js)]. You can check it by opening your terminal and typing `node -v` and `npm -v`.
 
-For ARM architectures like most Raspberry Pi's you will need a chromium browser compatible with ARM and change the executablePath (see FAQ).
+For ARM architectures like most Raspberry Pi's you will need a chromium browser compatible with ARM and change the executablePath ([see FAQ](#how-to-run-whatshidden-in-arm-architectures-like-most-raspberry-pis)).
 
 Minimum 1GB RAM recommended (keep that in mind when buying a new Raspberry Pi).
 
