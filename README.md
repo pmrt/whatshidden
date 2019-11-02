@@ -1,3 +1,5 @@
+![Last stable version](https://img.shields.io/github/package-json/v/pmrt/whatshidden/master?label=last%20stable%20version&style=for-the-badge&labelColor=7c61f9&color=383838)
+
 # Table of Contents
 
 - [**I. Whatshidden**](#whatshidden)
