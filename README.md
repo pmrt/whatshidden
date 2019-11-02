@@ -22,7 +22,7 @@ What's hidden? — Allows you to log and read deleted WhatsApp messages, as well
 
 It uses an alternative method to some WhatsApp Android applications: instead of logging the Android notifications, it makes use of a modified version of WhatsApp Web to log the messages. Scrapping is only used to get the QRCode.
 
-As a result, **you won't need an Android phone** in order to see the recalled messages. Also, there is no message length limit, **you'll see the full message** and **you can see images or listen to any audio message without entering WhatsApp** as they will download as soon as you receive the message, as long as your phone has a working internet connection.
+As a result, **you won't need an Android phone** in order to see the recalled messages. Also, there is no message length limit, **you'll see the full message** and **you can see images or listen to any audio message without entering WhatsApp** as they will be downloaded and decrypted as soon as you receive the message, as long as your phone has a working internet connection.
 
 All you need is a computer running 24/7. Ideally, something that can act as a server like a cheap Raspberry Pi or a VPS, but your day-to-day computer will work just fine if you're one of those who leave the computer running all day.
 
@@ -93,7 +93,7 @@ You can pass arguments to the application by editing the package.json: ('startin
 },
 [...]
 ```
-- **`-b, --browser <path>`** Use a different chromium browser from the provided executable path
+- **`-b, --browser <path>`** Use a different chromium browser with the provided executable path
 - **`-s, --screenshot`** Take a screenshot on each check, you'll have a screenshot of the page at the time of the last check. Useful for debugging in headless mode
 - **`-d, --dumpio`** Print chromium logs
 
