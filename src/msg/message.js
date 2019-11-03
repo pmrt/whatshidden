@@ -7,11 +7,9 @@ const
 
 class Message {
     constructor(msgData) {
+        this.setTime(msgData.t * s);
         this._type = msgData.type;
         this._id = msgData.id;
-        // timestamp (in seconds)
-        this._timestamp = msgData.t * s;
-        this.setTime(msgData.t * s);
         this._sender = msgData.from;
         this._isForwarded = msgData.isForwarded;
     }
@@ -54,7 +52,7 @@ class Message {
     }
 
     setTime(t) {
-        const inMs = this._timestamp * ms;
+        const inMs = t * ms;
         const date = new Date(inMs);
         this._timestamp = t;
         this._timestr = date.toLocaleString();
