@@ -47,7 +47,8 @@ export class MessageLogger {
         const id = msg.sender;
         let logger = this._chats.has(id)
             ? this._chats.get(id)
-            : this._chats.add(id, `${id}`);
+            // we'll use sender as id for now
+            : this._chats.add(id, id);
         logger.info(`[${msg.at}] ${msg.toLog()}`)
     }
 }
