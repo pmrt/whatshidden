@@ -80,11 +80,11 @@ export class WAMediaDownloader {
                     logger.error(err);
                     return bytesRead;
                 })
-                res.body.on('close', () => {
+
+                decryption.on('close', () => {
                     logger.verbose("file %s decrypted; %s bytes read", filename, bytesRead);
                     return bytesRead;
                 })
-
                 decryption.pipe(output);
             });
     }
