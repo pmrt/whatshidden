@@ -202,6 +202,11 @@ export class WAContainer {
         'wa:read' event has been exceeded
     */
     async _onWATimeout() {
+        if (program.screenshot) {
+            await this._page.screenshot({
+              path: `logs/${CHECK_LAST_SCREENSHOT_FILENAME}.png`
+            });
+        }
         logger.verbose("WhatsApp Web loading time limit exceeded");
         if (!await this._isLoggedIn()) {
             recover(PAGE_WONT_LOAD);
