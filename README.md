@@ -70,7 +70,7 @@ Whatshidden won't log any message of a conversation if you're in the same conver
 ## Usage
 
 - Initialize the application by running: `npm start`
-- Scan the QRCode with your WhatsApp app on your mobile phone
+- Scan the QRCode printed directly in the terminal with your WhatsApp app on your mobile phone
 - When it displays a message that says `waiting for new messages` you can close the application with `CTRL + C` and run it again but this time in background with `nohup` or any other command which prevents your process from closing after ending your terminal session. Type: `nohup npm run start:verbose &` if you're using `nohup`, the process will run in background: you can close your terminal. If you want to track the progress you can type in your terminal: `tail -f nohup.out` or `tail -f logs/app.log`. For more info about nohup head to [this article](https://www.computerhope.com/unix/unohup.htm)
 - Every time you run the application, the process will try to restore your previous session
 - Chat logs of the new messages will be stored in the 'chats' directory, in the root path
