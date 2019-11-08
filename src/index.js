@@ -6,11 +6,11 @@ import logger from './logger.js';
 import { exit, ensureExists,  } from './utils.js';
 
 import { WAContainer } from './container.js';
+import { UnknownCriticalError } from './errors.js';
 
 const dirError = err => {
     if (err) {
-        logger.error(err);
-        exit(1);
+        new UnknownCriticalError(err.message);
     }
 }
 

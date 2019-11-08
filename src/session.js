@@ -2,6 +2,7 @@ import { writeFile, readFile } from "fs";
 import { join } from "path";
 import { FULL_DATA_PATH, SESSION_FILE } from "./consts.js";
 import logger from "./logger.js";
+import { SessionSaveFailedWarn, SesssionNoFoundWarn, UnknownError, SessionRestoreFailedWarn } from "./errors.js";
 
 const filePath = join(FULL_DATA_PATH, SESSION_FILE);
 
@@ -21,14 +22,14 @@ export class Session {
             },
             (err) => {
                 if (err) {
-                    logger.error(`error while saving session to ${filePath}. ${err.message}`);
-                    return;
+                    return new SessionSaveFailedWarn(
+                        `(filePath: ${filePath}) ${err.message}`
+                    )
                 }
                 logger.verbose(`session saved to ${filePath}`);
             }
         )
     }
-
 
     async restore(toPage) {
         logger.verbose(`attempting to restore session..`);
@@ -36,34 +37,40 @@ export class Session {
             readFile(filePath, 'utf8', async (err, raw) => {
                 if (err) {
                     if (err.code === 'ENOENT') {
-                        let msg = "no session file found, skipping...";
-                        logger.warn(msg);
+                        new SesssionNoFoundWarn();
                         return resolve(false);
                     }
-                    logger.error(err);
+                    new UnknownError(
+                        `Error when trying to read session file path ${filePath}: ${err.message}`
+                    );
                     return reject(err);
                 }
 
                 let session;
                 try {
                     session = JSON.parse(raw);
-                } catch(e) {
-                    logger.error(`failed to restore sesion: bad session file ${filePath}`);
-                    return reject(e);
+                } catch(err) {
+                    new SessionRestoreFailedWarn(
+                        `bad session file ${filePath}`
+                    )
+                    return reject(err);
                 }
 
                 if (!session.storage) {
-                    let msg = `failed to restore sesion: bad session file ${filePath}`;
-                    logger.error(msg);
+                    new SessionRestoreFailedWarn(
+                        `bad session file ${filePath}`
+                    )
                     return reject(msg);
                 }
                 logger.verbose('[+] got session, trying to restore it');
 
                 try {
                     await toPage.evaluate((items) => setSession(items), session.storage);
-                } catch(e) {
-                    logger.error(`failed to restore session: error while evaluating DOM`);
-                    reject(e);
+                } catch(err) {
+                    new SessionRestoreFailedWarn(
+                        `error while evaluating DOM. ${err.message}`
+                    )
+                    reject(err);
                 }
 
                 logger.info('session injected successfully');

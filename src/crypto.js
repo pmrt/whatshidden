@@ -9,6 +9,7 @@ import { HKDF_EXPAND_LENGTH, MEDIA_DIR } from './consts.js';
 import { getSenderPath } from './utils.js';
 
 import { decode, toB64 } from './b64.js';
+import { MediaDecryptionFailedWarn, MediaDownloadFailedWarn } from './errors.js';
 
 function HKDF(secret, info, length) {
     const expanded = hkdf(
@@ -52,10 +53,11 @@ export class WAMediaDownloader {
             Buffer.from(bundle.encKey),
             Buffer.from(bundle.iv)
         );
-        decryption.on('error', (err) => {
-            logger.warn("error while decrypting media %s", filename);
-            logger.error(err);
-            return;
+        decryption.on('error', (e) => {
+            new MediaDecryptionFailedWarn(
+                `(file: ${filename}) ${e.message}`
+            )
+            return bytesRead;
         })
 
         return await fetch(this._url)
@@ -75,9 +77,10 @@ export class WAMediaDownloader {
                     bytesRead += len;
                 })
 
-                res.body.on('error', err => {
-                    logger.warn("error while downloading media %s", filename);
-                    logger.error(err);
+                res.body.on('error', e => {
+                    new MediaDownloadFailedWarn(
+                        `(file: ${filename}) ${e.message}`
+                    )
                     return bytesRead;
                 })
 
