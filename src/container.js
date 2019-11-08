@@ -462,8 +462,8 @@ export class WAContainer {
             process.cwd(),
             isDev,
             LOG_LEVEL,
-            program.screenshot,
-            program.dumpio,
+            !!program.screenshot,
+            !!program.dumpio,
         );
 
         let code;
