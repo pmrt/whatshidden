@@ -157,6 +157,12 @@ Update npm with `npm install -g npm`. [Update Node](https://stackoverflow.com/qu
 ### I get an error "error while loading shared libraries" and "failed to launch chrome!" when running `npm start`
 If you get this error when running the application you'll need to install the puppeteer required dependencies for your (Unix) OS. [Check the required dependencies for your operating system here](https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix).
 
+E.g. for a debian based distro you should type the following command:
+```
+apt-get update && apt-get install gconf-service libasound2 libatk1.0-0 libatk-bridge2.0-0 libc6 libcairo2 libcups2 libdbus-1-3 libexpat1 libfontconfig1 libgcc1 libgconf-2-4 libgdk-pixbuf2.0-0 libglib2.0-0 libgtk-3-0 libnspr4 libpango-1.0-0 libpangocairo-1.0-0 libstdc++6 libx11-6 libx11-xcb1 libxcb1 libxcomposite1 libxcursor1 libxdamage1 libxext6 libxfixes3 libxi6 libxrandr2 libxrender1 libxss1 libxtst6 ca-certificates fonts-liberation libappindicator1 libnss3 lsb-release xdg-utils wget
+```
+..in your terminal to get all the dependencies you need
+
 ### I get an error "Running as root without --no-sandbox is not supported" when running `npm start`
 Don't run the application as root, it's unsafe. Change to a non-root user with `su <your-username>`. E.g. `su pedro`
 
