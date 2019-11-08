@@ -45,7 +45,7 @@ WhatsApp Web only allows one session at a time: you can't use two sessions at th
 
 **As a general recommendation** you shouldn't use other WhatsApp Web sessions while running the application but it can handle it in a situation where you really need it.
 
-**_Important note: There's a bug in the current beta version which makes this check unreliable when using whatsapp web too much. [See #8](https://github.com/pmrt/whatshidden/issues/44) for tracking the issue._**
+**_Important note: There's a bug in the current beta version which makes this check unreliable when using whatsapp web too much. [See #44](https://github.com/pmrt/whatshidden/issues/44) for tracking the issue._**
 
 
 Whatshidden performs a status check every 15 min, if it detects that you have used other session in a check it'll schedule a refresh for the next check, that way you have a minimum of 15 minutes in which you can use WhatsApp Web (but it won't log any message). After that time, in the next check it'll recover the session and a pop-up will prompt you in your other session asking if you want to use it 'Here' (in that window) or 'Close session'. If you click on 'Here' or just refresh the page you can use WhatsApp Web again and Whatshidden won't log any message until it recovers the session in future checks. Otherwise, if you don't do anything, click on 'Close session' or you close the tab/window, Whatshidden will work again.
