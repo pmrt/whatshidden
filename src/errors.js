@@ -376,6 +376,10 @@ export class RefreshScheduledWarn extends WhatshiddenWarn {
     get name() {
         return "RefreshScheduledWarn";
     }
+
+    get takeScreenshot() {
+        return false;
+    }
 }
 
 export class CantRecoverSessionError extends WhatshiddenCriticalError {
