@@ -6,6 +6,7 @@ import { exit, ensureExists,  } from './utils.js';
 
 import { WAContainer } from './container.js';
 import { UnknownCriticalError } from './errors.js';
+import logger from './logger.js';
 
 const dirError = err => {
     if (err) {
@@ -18,16 +19,16 @@ const dirError = err => {
 ensureExists(FULL_DATA_PATH, dirError);
 ensureExists(FULL_CHAT_LOGS_PATH, dirError);
 
-process.on('SIGINT', sig =>
-    exit(0, "SIGNINT RECEIVED (stopped by user interaction)")
-);
-
 program
     .version(packageConfig.version)
     .option('-b, --browser <path>', 'Use a different chromium browser with the provided executable path')
-    .option('-s, --screenshot', 'Take a screenshot on each check')
+    .option('-s, --screenshot', "Take a screenshot of whatsapp web's page on each check and errors related with the page")
     .option('-d, --dumpio', 'Show chromium logs');
 
 program.parse(process.argv);
 
-new WAContainer();
+const app = new WAContainer();
+
+process.on('SIGINT', sig =>
+    exit(0, "SIGNINT RECEIVED (stopped by user interaction)")
+);

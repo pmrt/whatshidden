@@ -19,6 +19,7 @@ export function clearSession() {
                 message: `(filePath: ${filePath}) ${err.message}. Please remove it manually`
             });
         }
+        logger.verbose("session file deleted");
     });
 }
 

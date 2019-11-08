@@ -94,7 +94,7 @@ You can pass arguments to the application by editing the package.json: ('startin
 [...]
 ```
 - **`-b, --browser <path>`** Use a different chromium browser with the provided executable path
-- **`-s, --screenshot`** Take a screenshot on each check, you'll have a screenshot of the page at the time of the last check. Useful for debugging in headless mode
+- **`-s, --screenshot`** Take a screenshot of whatsapp web's page on each check and errors related with the page. Useful for debugging in headless mode
 - **`-d, --dumpio`** Print chromium logs
 
 ### Available scripts

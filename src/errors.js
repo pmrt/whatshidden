@@ -1,5 +1,5 @@
 import logger from './logger.js';
-import { clearSession, exit } from './utils.js';
+import { clearSession } from './utils.js';
 import program from 'commander';
 
 const UNKNOWN_MESSAGE = "An unknown error has occurred";
@@ -30,48 +30,94 @@ class TopWhatshiddenError extends Error {
     constructor(errData = {}) {
         const { page, message } = errData;
         super(message);
-        this._page = page;
 
-        this.screenshot();
+        this.exitIfNeeded = this.exitIfNeeded.bind(this);
+        this._page = page;
     }
 
-    /*
-        Take screenshot if -s/--screenshot is provided and the error has takeScreenshot = true.
-
-        As general rule, disable takeScreenshot only if the error has nothing to do with
-        whatsapp web's page (eg. creating a new folder, saving to a file...)
-    */
-    async screenshot() {
-        console.log(this.hasPage(), program.screenshot, this.takeScreenshot)
-        if (this.hasPage() && program.screenshot && this.takeScreenshot) {
-            console.log(this._page);
-            await this._page.screenshot({
-              path: `logs/${this.name}.png`
-            });
+    init() {
+        if (this.doRecover) {
+            this.recover();
         }
+
+        if (this.hasPage() && program.screenshot && this.takeScreenshot) {
+            return this.screenshot()
+                .then(this.exitIfNeeded);
+        }
+        this.exitIfNeeded();
+    }
+
+    log(msg) {
+        const log = `${this.name}: ${msg}`;
+        this.logger.call(logger, log);
     }
 
     hasPage() {
         return !!this._page;
     }
 
-    get name() {
-        return "WhatshiddenError"
+    recover() {
+        clearSession();
     }
 
+    quit() {
+        logger.info("Exiting..");
+        // Exit without error to avoid npm to generate useless stacktrace
+        process.exit(0);
+    }
+
+    exitIfNeeded() {
+        if (this.needExit) {
+            this.quit();
+        }
+    }
+
+    /*
+         Take screenshot if -s/--screenshot is provided and the error has takeScreenshot = true.
+
+         As general rule, disable takeScreenshot only if the error has nothing to do with
+         whatsapp web's page (eg. creating a new folder, saving to a file...)
+    */
+    async screenshot() {
+        await this._page.screenshot({
+            path: `logs/${this.name}.png`
+        });
+        logger.verbose("saved screenshot of whatsapp web's page after %s", this.name);
+    }
+
+    get doRecover() {
+        return false;
+    }
+
+    get name() {
+        return "WhatshiddenError";
+    }
+
+    /*
+        Whether to take a screenshot.
+    */
     get takeScreenshot() {
         return true;
+    }
+
+    get needExit() {
+        return false;
+    }
+
+    get logger() {
+        return logger.error;
     }
 }
 
 class WhatshiddenWarn extends TopWhatshiddenError {
     constructor(errData = {}) {
-        super(errData)
+        super(errData);
         this.log(errData.message);
+        this.init();
     }
 
-    log(msg) {
-        logger.warn(msg);
+    get logger() {
+        return logger.warn;
     }
 
     get name() {
@@ -83,10 +129,7 @@ class WhatshiddenError extends TopWhatshiddenError {
     constructor(errData = {}) {
         super(errData);
         this.log(errData.message);
-    }
-
-    log(msg) {
-        logger.error(msg);
+        this.init();
     }
 
     get name() {
@@ -97,26 +140,10 @@ class WhatshiddenError extends TopWhatshiddenError {
 class WhatshiddenCriticalError extends WhatshiddenError {
     constructor(errData = {}) {
         super(errData);
-
-        if (this.doRecover) {
-            this.recover();
-        }
-
-        this.quit();
     }
 
-    recover() {
-        clearSession();
-    }
-
-    quit() {
-        logger.info("Exiting..");
-        // Exit without error to avoid npm to generate useless stacktrace
-        exit(0);
-    }
-
-    get doRecover() {
-        return false;
+    get needExit() {
+        return true;
     }
 
     get name() {
@@ -166,10 +193,6 @@ export class SenderPathCreationFailed extends WhatshiddenCriticalError {
 
     get name() {
         return "SenderPathCreationFailed";
-    }
-
-    get takeScreenshot() {
-        return false;
     }
 }
 
@@ -386,7 +409,7 @@ export class SessionCleanupFailedError extends WhatshiddenCriticalError {
         return "SessionCleanupFailedError";
     }
 
-    get takeScreenshot() {
+    takeScreenshot() {
         return false;
     }
 }
@@ -404,7 +427,7 @@ export class SessionSaveFailedWarn extends WhatshiddenWarn {
         return "SessionSaveFailedWarn";
     }
 
-    get takeScreenshot() {
+    takeScreenshot() {
         return false;
     }
 }
@@ -422,11 +445,12 @@ export class SessionRestoreFailedWarn extends WhatshiddenWarn {
         return "SessionRestoreFailedError";
     }
 
-    get takeScreenshot() {
+    takeScreenshot() {
         return false;
     }
 }
 
+// TODO - Fix typos
 export class SesssionNoFoundWarn extends WhatshiddenWarn {
     constructor(errData = {}) {
         const { page, message } = errData;
@@ -440,7 +464,7 @@ export class SesssionNoFoundWarn extends WhatshiddenWarn {
         return "SesssionNoFoundWarn";
     }
 
-    get takeScreenshot() {
+    takeScreenshot() {
         return false;
     }
 }

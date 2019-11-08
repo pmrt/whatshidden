@@ -162,9 +162,7 @@ export class WAContainer {
             }
 
             if (program.screenshot) {
-                await this._page.screenshot({
-                    path: `logs/${CHECK_LAST_SCREENSHOT_FILENAME}.png`
-                });
+                await this.takeScreenshot(CHECK_LAST_SCREENSHOT_FILENAME);
             }
             this._check(msToCheck);
         }, msToCheck);
@@ -225,6 +223,13 @@ export class WAContainer {
         return new WhatsAppWebTimeoutError({
             page: this._page
         });
+    }
+
+    async takeScreenshot(name = 'screenshot') {
+        await this._page.screenshot({
+            path: `logs/${name}.png`
+        });
+        logger.verbose("saved screenshot of WhatsApp Web's page: logs/%s.png", name);
     }
 
     /*
@@ -477,10 +482,6 @@ export class WAContainer {
             this._check(CHECK_INTERVAL);
 
         } catch(e) {
-            if (this._browser) {
-                // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
-                await this._browser.close();
-            }
             new WhatsAppWebLaunchError({
                 page: this._page,
                 message: e.message
