@@ -319,7 +319,7 @@ export class MediaDecryptionFailedWarn extends WhatshiddenWarn {
         return "MediaDecryptionFailedWarn";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
@@ -337,7 +337,7 @@ export class MediaDownloadFailedWarn extends WhatshiddenWarn {
         return "MediaDownloadFailedWarn";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
@@ -409,7 +409,7 @@ export class SessionCleanupFailedError extends WhatshiddenCriticalError {
         return "SessionCleanupFailedError";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
@@ -427,7 +427,7 @@ export class SessionSaveFailedWarn extends WhatshiddenWarn {
         return "SessionSaveFailedWarn";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
@@ -445,7 +445,7 @@ export class SessionRestoreFailedWarn extends WhatshiddenWarn {
         return "SessionRestoreFailedError";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
@@ -463,7 +463,7 @@ export class SesssionNotFoundWarn extends WhatshiddenWarn {
         return "SesssionNotFoundWarn";
     }
 
-    takeScreenshot() {
+    get takeScreenshot() {
         return false;
     }
 }
