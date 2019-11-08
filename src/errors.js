@@ -39,7 +39,7 @@ class TopWhatshiddenError extends Error {
         Take screenshot if -s/--screenshot is provided and the error has takeScreenshot = true.
 
         As general rule, disable takeScreenshot only if the error has nothing to do with
-        whatsapp web's page (ie. creating a new folder, saving to a file...)
+        whatsapp web's page (eg. creating a new folder, saving to a file...)
     */
     async screenshot() {
         console.log(this.hasPage(), program.screenshot, this.takeScreenshot)
