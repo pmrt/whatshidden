@@ -24,7 +24,7 @@ import { extract } from './msg/message.js';
 import { MessageLogger } from './msg/logger.js';
 import logger, { LOG_LEVEL } from './logger.js';
 import { Session } from './session.js';
-import { isProd, exit, clearConsole} from './utils.js';
+import { isDev, exit, clearConsole} from './utils.js';
 import {
     PAGE_WONT_LOAD,
     TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION as TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION,
@@ -246,8 +246,8 @@ export class WAContainer {
     */
     async _launch() {
         let launchOpts = {
-            headless: isProd,
-            devtools: !isProd,
+            headless: !isDev,
+            devtools: isDev,
             dumpio: !!program.dumpio,
             args: [
                 '--lang=en-US,en;q=0.9',
@@ -435,11 +435,11 @@ export class WAContainer {
 
     async _init() {
         logger.info(
-            '[%s v%s]: new instance from %s; prod_mode=%s; log_level=%s',
+            '[%s v%s]: new instance from %s; dev_mode=%s; log_level=%s',
             packageConfig.name,
             packageConfig.version,
             process.cwd(),
-            isProd,
+            isDev,
             LOG_LEVEL,
         );
 

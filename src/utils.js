@@ -4,7 +4,7 @@ import { FULL_DATA_PATH, SESSION_FILE, FULL_CHAT_LOGS_PATH, MEDIA_DIR } from './
 import { join } from 'path';
 import mkdirp  from 'mkdirp';
 
-export const isProd = process.env.NODE_ENV === 'production';
+export const isDev = process.env.NODE_ENV === 'development';
 
 export function exit(exitCode=0, warn) {
     if (warn) {
