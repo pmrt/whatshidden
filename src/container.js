@@ -133,11 +133,15 @@ export class WAContainer {
             }
 
             if (!isLoggedIn) {
-                return new CredentialsMayHaveExpiredError();
+                return new CredentialsMayHaveExpiredError({
+                    page: this._page
+                });
             }
 
             if (this._needRefreshAttempts >= NEED_REFRESH_COUNTER_BEFORE_FAIL) {
-                return new CantRecoverSessionError();
+                return new CantRecoverSessionError({
+                    page: this._page
+                });
             }
 
             if (this._needRefresh) {
@@ -146,8 +150,12 @@ export class WAContainer {
                 logger.verbose("attempting to recover the session.. [attempt #%s]", this._needRefreshAttempts);
                 this._reload(true);
             } else if (!await this._canReceiveMessages()) {
-                new CantReceiveMessagesWarn();
-                new RefreshScheduledWarn();
+                new CantReceiveMessagesWarn({
+                    page: this._page
+                });
+                new RefreshScheduledWarn({
+                    page: this._page
+                });
                 this._needRefresh = true;
             } else {
                 this._needRefreshAttempts = 0;
@@ -175,7 +183,9 @@ export class WAContainer {
             }
             this.log(msg);
         } catch(e) {
-            return new NewMessageReadingFailedWarn();
+            return new NewMessageReadingFailedWarn({
+                page: this._page
+            });
         }
 
         const log = msg.isGroup()
@@ -208,9 +218,13 @@ export class WAContainer {
     */
     async _onWATimeout() {
         if (!await this._isLoggedIn()) {
-            return new CredentialsMayHaveExpiredError();
+            return new CredentialsMayHaveExpiredError({
+                page: this._page
+            });
         }
-        return new WhatsAppWebTimeoutError();
+        return new WhatsAppWebTimeoutError({
+            page: this._page
+        });
     }
 
     /*
@@ -399,7 +413,10 @@ export class WAContainer {
         try {
             res = await this._refreshQR(code)
         } catch(e) {
-            return new QRCodeScanningError(e.message);
+            return new QRCodeScanningError({
+                page: this._page,
+                message: e.message
+            });
         }
 
         switch (res) {
@@ -409,10 +426,14 @@ export class WAContainer {
                 this.save();
                 break;
             case QR_SCAN_STATUS.TIMEOUT:
-                return new QRCodeScanningTimeoutError();
+                return new QRCodeScanningTimeoutError({
+                    page: this._page
+                });
             case QR_SCAN_STATUS.ERROR:
             default:
-                return new UnknownQRCodeElementState();
+                return new UnknownQRCodeElementState({
+                    page: this._page
+                });
         }
         return true;
     }
@@ -430,12 +451,14 @@ export class WAContainer {
 
     async _init() {
         logger.info(
-            '[%s v%s]: new instance from %s; dev_mode=%s; log_level=%s',
+            '[%s v%s]: new instance from %s; dev_mode=%s; log_level=%s; screenshot_on_err=%s; dumpio=%s',
             packageConfig.name,
             packageConfig.version,
             process.cwd(),
             isDev,
             LOG_LEVEL,
+            program.screenshot,
+            program.dumpio,
         );
 
         let code;
@@ -458,7 +481,10 @@ export class WAContainer {
                 // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
                 await this._browser.close();
             }
-            new UnknownCriticalError(e.message);
+            new UnknownCriticalError({
+                page: this._page,
+                message: e.message
+            });
         }
     }
 }

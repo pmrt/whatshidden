@@ -2,7 +2,6 @@ import program from 'commander';
 
 import packageConfig from '../package.json';
 import { FULL_DATA_PATH, FULL_CHAT_LOGS_PATH } from './consts.js';
-import logger from './logger.js';
 import { exit, ensureExists,  } from './utils.js';
 
 import { WAContainer } from './container.js';
@@ -10,7 +9,9 @@ import { UnknownCriticalError } from './errors.js';
 
 const dirError = err => {
     if (err) {
-        new UnknownCriticalError(err.message);
+        new UnknownCriticalError({
+            message: err.message
+        });
     }
 }
 

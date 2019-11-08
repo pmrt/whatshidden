@@ -22,9 +22,9 @@ export class Session {
             },
             (err) => {
                 if (err) {
-                    return new SessionSaveFailedWarn(
-                        `(filePath: ${filePath}) ${err.message}`
-                    )
+                    return new SessionSaveFailedWarn({
+                        message:`(filePath: ${filePath}) ${err.message}`
+                    });
                 }
                 logger.verbose(`session saved to ${filePath}`);
             }
@@ -40,9 +40,9 @@ export class Session {
                         new SesssionNoFoundWarn();
                         return resolve(false);
                     }
-                    new UnknownError(
-                        `Error when trying to read session file path ${filePath}: ${err.message}`
-                    );
+                    new UnknownError({
+                        message: `Error when trying to read session file path ${filePath}: ${err.message}`
+                    });
                     return reject(err);
                 }
 
@@ -50,16 +50,16 @@ export class Session {
                 try {
                     session = JSON.parse(raw);
                 } catch(err) {
-                    new SessionRestoreFailedWarn(
-                        `bad session file ${filePath}`
-                    )
+                    new SessionRestoreFailedWarn({
+                        message: `bad session file ${filePath}`
+                    });
                     return reject(err);
                 }
 
                 if (!session.storage) {
-                    new SessionRestoreFailedWarn(
-                        `bad session file ${filePath}`
-                    )
+                    new SessionRestoreFailedWarn({
+                        message: `bad session file ${filePath}`
+                    });
                     return reject(msg);
                 }
                 logger.verbose('[+] got session, trying to restore it');
@@ -67,9 +67,9 @@ export class Session {
                 try {
                     await toPage.evaluate((items) => setSession(items), session.storage);
                 } catch(err) {
-                    new SessionRestoreFailedWarn(
-                        `error while evaluating DOM. ${err.message}`
-                    )
+                    new SessionRestoreFailedWarn({
+                        message: `error while evaluating DOM. ${err.message}`
+                    });
                     reject(err);
                 }
 

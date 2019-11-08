@@ -54,9 +54,9 @@ export class WAMediaDownloader {
             Buffer.from(bundle.iv)
         );
         decryption.on('error', (e) => {
-            new MediaDecryptionFailedWarn(
-                `(file: ${filename}) ${e.message}`
-            )
+            new MediaDecryptionFailedWarn({
+                message: `(file: ${filename}) ${e.message}`
+            });
             return bytesRead;
         })
 
@@ -78,9 +78,9 @@ export class WAMediaDownloader {
                 })
 
                 res.body.on('error', e => {
-                    new MediaDownloadFailedWarn(
-                        `(file: ${filename}) ${e.message}`
-                    )
+                    new MediaDownloadFailedWarn({
+                        message: `(file: ${filename}) ${e.message}`
+                    });
                     return bytesRead;
                 })
 

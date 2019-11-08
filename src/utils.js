@@ -15,9 +15,9 @@ export function clearSession() {
     const filePath = join(FULL_DATA_PATH, SESSION_FILE);
     unlink(filePath, err => {
         if (err) {
-            return new SessionCleanupFailedError(
-                `(filePath: ${filePath}) ${err.message}. Please remove it manually`
-            )
+            return new SessionCleanupFailedError({
+                message: `(filePath: ${filePath}) ${err.message}. Please remove it manually`
+            });
         }
     });
 }
@@ -26,7 +26,9 @@ export function getSenderPath(sender) {
     const path = join(FULL_CHAT_LOGS_PATH, sender);
     ensureExists(join(path, MEDIA_DIR), err => {
         if (err) {
-            return new SenderPathCreationFailed(err.message);
+            return new SenderPathCreationFailed({
+                message: err.message
+            });
         }
     });
     return path;

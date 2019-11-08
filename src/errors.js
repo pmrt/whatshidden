@@ -25,22 +25,31 @@ const QRCODE_SCANNING_FAILED = "Scanning error";
 const QRCODE_UNKNOWN_ELEMENT_STATE = "Unknown QRCode element state";
 const QRCODE_SCANNING_TIMEOUT = "QRCode scanning time limit exceeded. No user has scanned the QRCode";
 
-
 class TopWhatshiddenError extends Error {
-    constructor(msg) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super(message);
+        this._page = page;
 
-        /*
-            Take screenshot if -s/--screenshot is provided and the error has takeScreenshot = true.
+        this.screenshot();
+    }
 
-            As general rule, disable takeScreenshot only if the error has nothing to do with
-            whatsapp web's page (ie. creating a new folder, saving to a file...)
-        */
-        if (program.screenshot && this.takeScreenshot) {
+    /*
+        Take screenshot if -s/--screenshot is provided and the error has takeScreenshot = true.
+
+        As general rule, disable takeScreenshot only if the error has nothing to do with
+        whatsapp web's page (ie. creating a new folder, saving to a file...)
+    */
+    async screenshot() {
+        if (this.hasPage() && program.screenshot && this.takeScreenshot) {
             await this._page.screenshot({
               path: `logs/${this.name}.png`
             });
         }
+    }
+
+    hasPage() {
+        return !!this._page;
     }
 
     get name() {
@@ -53,9 +62,9 @@ class TopWhatshiddenError extends Error {
 }
 
 class WhatshiddenWarn extends TopWhatshiddenError {
-    constructor(msg) {
-        super(msg)
-        this.log(msg);
+    constructor(errData = {}) {
+        super(errData)
+        this.log(errData.message);
     }
 
     log(msg) {
@@ -67,10 +76,10 @@ class WhatshiddenWarn extends TopWhatshiddenError {
     }
 }
 
-class WhatshiddenError extends Error {
-    constructor(msg) {
-        super(msg);
-        this.log(msg);
+class WhatshiddenError extends TopWhatshiddenError {
+    constructor(errData = {}) {
+        super(errData);
+        this.log(errData.message);
     }
 
     log(msg) {
@@ -83,8 +92,8 @@ class WhatshiddenError extends Error {
 }
 
 class WhatshiddenCriticalError extends WhatshiddenError {
-    constructor(msg) {
-        super(msg);
+    constructor(errData = {}) {
+        super(errData);
 
         if (this.doRecover) {
             this.recover();
@@ -113,8 +122,12 @@ class WhatshiddenCriticalError extends WhatshiddenError {
 }
 
 export class UnknownError extends WhatshiddenError {
-    constructor(msg = UNKNOWN_MESSAGE) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || UNKNOWN_MESSAGE,
+        });
     }
 
     get name() {
@@ -123,8 +136,12 @@ export class UnknownError extends WhatshiddenError {
 }
 
 export class UnknownCriticalError extends WhatshiddenCriticalError {
-    constructor(msg = UNKNOWN_MESSAGE) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || UNKNOWN_MESSAGE,
+        });
     }
 
     get name() {
@@ -136,8 +153,12 @@ export class UnknownCriticalError extends WhatshiddenCriticalError {
     File
 */
 export class SenderPathCreationFailed extends WhatshiddenCriticalError {
-    constructor(msg) {
-        super(msg ? `${SENDER_PATH_CREATION_FAILED}: ${msg}` : SENDER_PATH_CREATION_FAILED);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${SENDER_PATH_CREATION_FAILED}: ${message}` : SENDER_PATH_CREATION_FAILED,
+        });
     }
 
     get name() {
@@ -154,8 +175,12 @@ export class SenderPathCreationFailed extends WhatshiddenCriticalError {
 */
 
 export class WhatsAppWebTimeoutError extends WhatshiddenCriticalError {
-    constructor(msg = WHATSAPP_WEB_TIMEOUT) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || WHATSAPP_WEB_TIMEOUT,
+        });
     }
 
     get name() {
@@ -168,8 +193,12 @@ export class WhatsAppWebTimeoutError extends WhatshiddenCriticalError {
 */
 
 export class QRCodeScanningError extends WhatshiddenCriticalError {
-    constructor(msg) {
-        super(msg ? `${QRCODE_SCANNING_FAILED}: ${msg}` : QRCODE_SCANNING_FAILED);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${QRCODE_SCANNING_FAILED}: ${message}` : QRCODE_SCANNING_FAILED,
+        });
     }
 
     get name() {
@@ -178,8 +207,12 @@ export class QRCodeScanningError extends WhatshiddenCriticalError {
 }
 
 export class QRCodeScanningTimeoutError extends WhatshiddenCriticalError {
-    constructor(msg = QRCODE_SCANNING_TIMEOUT) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || QRCODE_SCANNING_TIMEOUT,
+        });
     }
 
     get name() {
@@ -188,8 +221,12 @@ export class QRCodeScanningTimeoutError extends WhatshiddenCriticalError {
 }
 
 export class UnknownQRCodeElementState extends WhatshiddenCriticalError {
-    constructor(msg) {
-        super(`${QRCODE_SCANNING_FAILED}: ${QRCODE_UNKNOWN_ELEMENT_STATE}`);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: `${QRCODE_SCANNING_FAILED}: ${QRCODE_UNKNOWN_ELEMENT_STATE}`,
+        });
     }
 
     get name() {
@@ -202,8 +239,12 @@ export class UnknownQRCodeElementState extends WhatshiddenCriticalError {
 */
 
 export class CantReceiveMessagesWarn extends WhatshiddenWarn {
-    constructor(msg = CANT_RECEIVE_MESSAGES) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || CANT_RECEIVE_MESSAGES,
+        });
     }
 
     get name() {
@@ -212,8 +253,12 @@ export class CantReceiveMessagesWarn extends WhatshiddenWarn {
 }
 
 export class NewMessageReadingFailedWarn extends WhatshiddenWarn {
-    constructor(msg = NEW_MESSAGE_READING_FAILED) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || NEW_MESSAGE_READING_FAILED,
+        });
     }
 
     get name() {
@@ -222,22 +267,38 @@ export class NewMessageReadingFailedWarn extends WhatshiddenWarn {
 }
 
 export class MediaDecryptionFailedWarn extends WhatshiddenWarn {
-    constructor(msg) {
-        super(msg ? `${MEDIA_DECRYPTION_FAILED}: ${msg}` : MEDIA_DECRYPTION_FAILED)
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${MEDIA_DECRYPTION_FAILED}: ${message}` : MEDIA_DECRYPTION_FAILED,
+        });
     }
 
     get name() {
         return "MediaDecryptionFailedWarn";
     }
+
+    takeScreenshot() {
+        return false;
+    }
 }
 
 export class MediaDownloadFailedWarn extends WhatshiddenWarn {
-    constructor(msg) {
-        super(msg ? `${MEDIA_DOWNLOAD_FAILED}: ${msg}` : MEDIA_DOWNLOAD_FAILED)
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${MEDIA_DOWNLOAD_FAILED}: ${message}` : MEDIA_DOWNLOAD_FAILED,
+        });
     }
 
     get name() {
         return "MediaDownloadFailedWarn";
+    }
+
+    takeScreenshot() {
+        return false;
     }
 }
 
@@ -246,8 +307,12 @@ export class MediaDownloadFailedWarn extends WhatshiddenWarn {
 */
 
 export class CredentialsMayHaveExpiredError extends WhatshiddenCriticalError {
-    constructor(msg = CREDENTIALS_MAY_HAVE_EXPIRED) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || CREDENTIALS_MAY_HAVE_EXPIRED,
+        });
     }
 
     get doRecover() {
@@ -260,8 +325,12 @@ export class CredentialsMayHaveExpiredError extends WhatshiddenCriticalError {
 }
 
 export class RefreshScheduledWarn extends WhatshiddenWarn {
-    constructor(msg = REFRESH_SCHEDULED) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || REFRESH_SCHEDULED,
+        });
     }
 
     get name() {
@@ -270,8 +339,12 @@ export class RefreshScheduledWarn extends WhatshiddenWarn {
 }
 
 export class CantRecoverSessionError extends WhatshiddenCriticalError {
-    constructor(msg = TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION,
+        });
     }
 
     get doRecover() {
@@ -284,8 +357,12 @@ export class CantRecoverSessionError extends WhatshiddenCriticalError {
 }
 
 export class SessionCleanupFailedError extends WhatshiddenCriticalError {
-    constructor(msg) {
-        super(msg ? `${SESSION_CLEANUP_FAILED}: ${msg}` : SESSION_CLEANUP_FAILED);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${SESSION_CLEANUP_FAILED}: ${message}` : SESSION_CLEANUP_FAILED,
+        });
     }
 
     get name() {
@@ -298,8 +375,12 @@ export class SessionCleanupFailedError extends WhatshiddenCriticalError {
 }
 
 export class SessionSaveFailedWarn extends WhatshiddenWarn {
-    constructor(msg) {
-        super(msg ? `${SESSION_SAVE_FAILED}: ${msg}` : SESSION_SAVE_FAILED);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${SESSION_SAVE_FAILED}: ${message}` : SESSION_SAVE_FAILED,
+        });
     }
 
     get name() {
@@ -312,8 +393,12 @@ export class SessionSaveFailedWarn extends WhatshiddenWarn {
 }
 
 export class SessionRestoreFailedWarn extends WhatshiddenWarn {
-    constructor(msg) {
-        super(msg ? `${SESSION_RESTORE_FAILED}: ${msg}` : SESSION_RESTORE_FAILED);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${SESSION_RESTORE_FAILED}: ${message}` : SESSION_RESTORE_FAILED,
+        });
     }
 
     get name() {
@@ -326,8 +411,12 @@ export class SessionRestoreFailedWarn extends WhatshiddenWarn {
 }
 
 export class SesssionNoFoundWarn extends WhatshiddenWarn {
-    constructor(msg = SESSION_NO_FOUND) {
-        super(msg);
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message || SESSION_NO_FOUND,
+        });
     }
 
     get name() {
