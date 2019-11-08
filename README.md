@@ -140,7 +140,7 @@ As an alternative method to `update.sh` (e.g. for windows) you can type `git pul
 If you have a directory like e.g. _`3412345678-16593097`_ in your chats folder, don't worry: it's just a group with the format `<my number>-<group id>`
 
 ### How to close session
-If you want to close your current session all you have to do is to terminate the process (with -2 SIGINT signal if possible) and close the session from your phone in `configuration > Whatsapp Web` (where you scanned the QRCode)
+If you want to close your current session all you have to do is to terminate the process (with -2 SIGINT signal if possible, e.g. CTRL + C) and close the session from your phone in `configuration > Whatsapp Web` (where you scanned the QRCode)
 
 The next time you run the application it'll attempt to use it, detect the invalid session and remove it. If you need to remove it manually, you can remove the `.data` directory by typing `rm -rf .data` in your terminal. The `.data` directory is in the root path of the application along with your chats and logs
 
