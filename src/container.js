@@ -249,6 +249,11 @@ export class WAContainer {
             headless: isProd,
             devtools: !isProd,
             dumpio: !!program.dumpio,
+            args: [
+                '--lang=en-US,en;q=0.9',
+                '--remote-debugging-port=9222',
+                `--user-agent=${USER_AGENT}`,
+            ],
         };
 
         if (program.browser) {
@@ -258,15 +263,13 @@ export class WAContainer {
 
         this._browser = await puppeteer.launch(launchOpts);
         logger.verbose("using %s", await this._browser.version());
+        logger.verbose("user-agent: %s", await this._browser.userAgent());
         this._page = await this._browser.newPage();
 
         logger.verbose("exposing emitter...");
         await this._page.exposeFunction("emit", (event, ...args) =>
         this._tracker.emit(event, ...args)
         );
-
-        logger.verbose("changing user-agent to '%s'...", USER_AGENT);
-        this._page.setUserAgent(USER_AGENT);
 
         logger.verbose("navigating to %s...", WHATSAPP_WEB_URL);
         await this._page.goto(WHATSAPP_WEB_URL);
