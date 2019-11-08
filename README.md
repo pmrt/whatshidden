@@ -35,7 +35,8 @@ You shouldn't. Yep, keep in mind you're scanning a QRCode and this application w
 That's why this project is completely open-source and you're downloading and running exactly the same (not either minified nor compiled) code you see here (via git clone), unlike some obscure android apps out there which will log your notifications or will have access to your whole account too.
 
 # Requirements
-- **Node v12.13.0 or greather with npm** [[Download](https://nodejs.org/en/download/)][[How to update node](https://stackoverflow.com/questions/8191459/how-do-i-update-node-js)]. You can check it by opening your terminal and typing `node -v` and `npm -v`.
+- **Node v12.13.0 or greather with npm**. [[Download](https://nodejs.org/en/download/)][[How to update node](https://stackoverflow.com/questions/8191459/how-do-i-update-node-js)]. You can check it by opening your terminal and typing `node -v` and `npm -v`.
+- _(For UNIX systems)_ Make sure you have installed the required **puppeteer dependencies** in your distro. Otherwise you'll get a `error while loading shared libraries` error. [[Check the list](https://github.com/GoogleChrome/puppeteer/blob/master/docs/troubleshooting.md#chrome-headless-doesnt-launch-on-unix)]
 
 For ARM architectures like most Raspberry Pi's, you will need a chromium browser compatible with ARM and change the browser's executable path ([see FAQ](#how-to-run-whatshidden-in-arm-architectures-like-most-raspberry-pis)).
 
@@ -82,7 +83,7 @@ Whatshidden won't log any message of a conversation if you're in the same conver
 
 ### Important notes
 
-- **recommended** — If you want more detailed logs run it with `npm run start:verbose`. This only works on unix systems as passing down environment variables is slightly different on Windows (see available scripts)
+- **recommended** — If you want more detailed logs run it with `npm run start:verbose`. This command only works on unix systems as passing down environment variables is slightly different on Windows (see available scripts)
 
 ### Available arguments
 You can pass arguments to the application by editing the package.json: ('starting' script).
@@ -99,7 +100,7 @@ You can pass arguments to the application by editing the package.json: ('startin
 [...]
 ```
 - **`-b, --browser <path>`** Use a different chromium browser with the provided executable path
-- **`-s, --screenshot`** Take a screenshot of whatsapp web's page on each check and errors related with the page. Useful for debugging in headless mode
+- **`-s, --screenshot`** Take a screenshot of whatsapp web's page on each check and on errors related with the page. Screenshots are stored in your `logs` directory. Useful for debugging in headless mode.
 - **`-d, --dumpio`** Print chromium logs
 
 ### Available scripts
@@ -129,7 +130,9 @@ You can use `unsafe_update.sh`and `update.sh` to update your version to the last
 - `unsafe_update.sh` will delete your changes to the files but not the gitignored files (like your chats, logs, etc.)
 - `update.sh` will try to pull changes from master, if you have changed a file it'll fail
 
-You'll need bash to run both scripts
+You'll need bash to run both scripts.
+
+As an alternative method to `update.sh` (e.g. for windows) you can type `git pull` and then `npm install` in your terminal. Just copy the commands in the scripts.
 
 # FAQ
 

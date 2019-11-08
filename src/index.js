@@ -22,7 +22,7 @@ ensureExists(FULL_CHAT_LOGS_PATH, dirError);
 program
     .version(packageConfig.version)
     .option('-b, --browser <path>', 'Use a different chromium browser with the provided executable path')
-    .option('-s, --screenshot', "Take a screenshot of whatsapp web's page on each check and errors related with the page")
+    .option('-s, --screenshot', "Take a screenshot of whatsapp web's page on each check and on errors related with the page. Screenshots are stored in your `logs` directory. Useful for debugging in headless mode.")
     .option('-d, --dumpio', 'Show chromium logs');
 
 program.parse(process.argv);
