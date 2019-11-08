@@ -3,10 +3,11 @@ import { clearSession, exit } from './utils.js';
 import program from 'commander';
 
 const UNKNOWN_MESSAGE = "An unknown error has occurred";
-// File
+// Whatshidden
 const SENDER_PATH_CREATION_FAILED = "failed to create sender path";
 // Whatsapp
 const WHATSAPP_WEB_TIMEOUT = "WhatsApp Web loading time limit exceeded";
+const WHATSAPP_WEB_LAUNCH_FAILED = "failed to load whatsapp web";
 // Session
 const CREDENTIALS_MAY_HAVE_EXPIRED = "WhatsApp Web won't load. Your credentials may have expired or you have closed your session from your mobile phone. In an attempt to recover from this state, the application will delete your session data file"
 const TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION = "Too many attempts to recover session: session unrecoverable. You may be using WhatsApp Web on another device too much (WhatsApp Web only allows 1 session at a time) or an unrecoverable error has occurred";
@@ -41,7 +42,9 @@ class TopWhatshiddenError extends Error {
         whatsapp web's page (ie. creating a new folder, saving to a file...)
     */
     async screenshot() {
+        console.log(this.hasPage(), program.screenshot, this.takeScreenshot)
         if (this.hasPage() && program.screenshot && this.takeScreenshot) {
+            console.log(this._page);
             await this._page.screenshot({
               path: `logs/${this.name}.png`
             });
@@ -150,7 +153,7 @@ export class UnknownCriticalError extends WhatshiddenCriticalError {
 }
 
 /*
-    File
+    Whatshidden
 */
 export class SenderPathCreationFailed extends WhatshiddenCriticalError {
     constructor(errData = {}) {
@@ -173,6 +176,20 @@ export class SenderPathCreationFailed extends WhatshiddenCriticalError {
 /*
     WhatsApp
 */
+
+export class WhatsAppWebLaunchError extends WhatshiddenCriticalError {
+    constructor(errData = {}) {
+        const { page, message } = errData;
+        super({
+            page,
+            message: message ? `${WHATSAPP_WEB_LAUNCH_FAILED}: ${message}` : WHATSAPP_WEB_LAUNCH_FAILED,
+        });
+    }
+
+    get name() {
+        return "WhatsAppWebLaunchError";
+    }
+}
 
 export class WhatsAppWebTimeoutError extends WhatshiddenCriticalError {
     constructor(errData = {}) {

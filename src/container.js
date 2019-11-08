@@ -29,13 +29,13 @@ import {
     CredentialsMayHaveExpiredError,
     CantRecoverSessionError,
     WhatsAppWebTimeoutError,
-    UnknownCriticalError,
     NewMessageReadingFailedWarn,
     QRCodeScanningError,
     UnknownQRCodeElementState,
     QRCodeScanningTimeoutError,
     CantReceiveMessagesWarn,
-    RefreshScheduledWarn
+    RefreshScheduledWarn,
+    WhatsAppWebLaunchError
 } from './errors.js';
 import packageConfig from '../package.json';
 import { encode } from './b64.js';
@@ -481,7 +481,7 @@ export class WAContainer {
                 // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
                 await this._browser.close();
             }
-            new UnknownCriticalError({
+            new WhatsAppWebLaunchError({
                 page: this._page,
                 message: e.message
             });
