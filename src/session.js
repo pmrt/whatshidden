@@ -2,7 +2,7 @@ import { writeFile, readFile } from "fs";
 import { join } from "path";
 import { FULL_DATA_PATH, SESSION_FILE } from "./consts.js";
 import logger from "./logger.js";
-import { SessionSaveFailedWarn, SesssionNotFoundWarn, UnknownError, SessionRestoreFailedWarn } from "./errors.js";
+import { SessionSaveFailedWarn, SessionNotFoundWarn, UnknownError, SessionRestoreFailedWarn } from "./errors.js";
 
 const filePath = join(FULL_DATA_PATH, SESSION_FILE);
 
@@ -37,7 +37,7 @@ export class Session {
             readFile(filePath, 'utf8', async (err, raw) => {
                 if (err) {
                     if (err.code === 'ENOENT') {
-                        new SesssionNotFoundWarn();
+                        new SessionNotFoundWarn();
                         return resolve(false);
                     }
                     new UnknownError({

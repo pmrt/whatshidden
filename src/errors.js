@@ -454,7 +454,7 @@ export class SessionRestoreFailedWarn extends WhatshiddenWarn {
     }
 }
 
-export class SesssionNotFoundWarn extends WhatshiddenWarn {
+export class SessionNotFoundWarn extends WhatshiddenWarn {
     constructor(errData = {}) {
         const { page, message } = errData;
         super({
@@ -464,7 +464,7 @@ export class SesssionNotFoundWarn extends WhatshiddenWarn {
     }
 
     get name() {
-        return "SesssionNotFoundWarn";
+        return "SessionNotFoundWarn";
     }
 
     get takeScreenshot() {
