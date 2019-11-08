@@ -15,7 +15,7 @@ const REFRESH_SCHEDULED = "-> refresh scheduled for the next check, no message w
 const SESSION_CLEANUP_FAILED = "failed to delete the session";
 const SESSION_SAVE_FAILED = "failed to save session";
 const SESSION_RESTORE_FAILED = "failed to restore session";
-const SESSION_NO_FOUND = "no session file found. Saving skipped";
+const SESSION_NOT_FOUND = "no session file found. Saving skipped";
 // Messages
 const CANT_RECEIVE_MESSAGES = "Can't receive messages, you may have logged in on another device (WhatsApp Web only allows 1 session at a time)";
 const NEW_MESSAGE_READING_FAILED = "Failed to read new message";
@@ -450,18 +450,17 @@ export class SessionRestoreFailedWarn extends WhatshiddenWarn {
     }
 }
 
-// TODO - Fix typos
-export class SesssionNoFoundWarn extends WhatshiddenWarn {
+export class SesssionNotFoundWarn extends WhatshiddenWarn {
     constructor(errData = {}) {
         const { page, message } = errData;
         super({
             page,
-            message: message || SESSION_NO_FOUND,
+            message: message || SESSION_NOT_FOUND,
         });
     }
 
     get name() {
-        return "SesssionNoFoundWarn";
+        return "SesssionNotFoundWarn";
     }
 
     takeScreenshot() {
