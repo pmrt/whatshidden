@@ -71,13 +71,13 @@ Whatshidden won't log any message of a conversation if you're in the same conver
 
 - Initialize the application by running: `npm start`
 - Scan the QRCode printed directly in the terminal with your WhatsApp app on your mobile phone
-- When it displays a message that says `waiting for new messages` you can close the application with `CTRL + C` and run it again but this time in background with `nohup` or any other command which prevents your process from closing after ending your terminal session. Type: `nohup npm run start:verbose &` if you're using `nohup`, the process will run in background: you can close your terminal. If you want to track the progress you can type in your terminal: `tail -f nohup.out` or `tail -f logs/app.log`. For more info about nohup head to [this article](https://www.computerhope.com/unix/unohup.htm)
+- When it displays a message that says `waiting for new messages` you can close the application with `CTRL + C` and run it again but this time in background with `nohup` or any other command which prevents your process from closing after ending your terminal session. Type: `nohup npm start &` if you're using `nohup`, the process will run in background: you can close your terminal. If you want to track the progress you can type in your terminal: `tail -f nohup.out` or `tail -f logs/app.log`. For more info about nohup head to [this article](https://www.computerhope.com/unix/unohup.htm)
 - Every time you run the application, the process will try to restore your previous session
 - Chat logs of the new messages will be stored in the 'chats' directory, in the root path
 
 ### Important notes
 
-- **recommended** — If you want more detailed logs run it with `npm run start:verbose`. (see available scripts)
+- **recommended** — If you want more detailed logs run it with `npm run start:verbose`. This only works on unix systems as passing down environment variables is slightly different on Windows (see available scripts)
 
 ### Available arguments
 You can pass arguments to the application by editing the package.json: ('starting' script).
@@ -100,9 +100,23 @@ You can pass arguments to the application by editing the package.json: ('startin
 ### Available scripts
 As you can see, there're different ways to initialize the application:
 
+##### Unix systems
+
 - **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
 - **`npm start:verbose`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
 - **`npm start:dev`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
+
+##### Windows (powershell)
+
+- **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
+- **`$env:LOG_LEVEL='verbose';npm start`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
+- **`$env:NODE_ENV='production';$env:LOG_LEVEL='verbose';npm start`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
+
+##### Windows (cmd)
+
+- **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
+- **`set LOG_LEVEL=verbose && npm start`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
+- **`set NODE_ENV=production && set LOG_LEVEL=verbose && npm start`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
 
 # Update
 You can use `unsafe_update.sh`and `update.sh` to update your version to the last stable version (master branch) using git
