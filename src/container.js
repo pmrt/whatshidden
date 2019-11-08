@@ -24,11 +24,18 @@ import { extract } from './msg/message.js';
 import { MessageLogger } from './msg/logger.js';
 import logger, { LOG_LEVEL } from './logger.js';
 import { Session } from './session.js';
-import { isDev, exit, clearConsole} from './utils.js';
+import { isDev, clearConsole} from './utils.js';
 import {
-    PAGE_WONT_LOAD,
-    TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION as TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION,
-    recover
+    CredentialsMayHaveExpiredError,
+    CantRecoverSessionError,
+    WhatsAppWebTimeoutError,
+    UnknownCriticalError,
+    NewMessageReadingFailedWarn,
+    QRCodeScanningError,
+    UnknownQRCodeElementState,
+    QRCodeScanningTimeoutError,
+    CantReceiveMessagesWarn,
+    RefreshScheduledWarn
 } from './errors.js';
 import packageConfig from '../package.json';
 import { encode } from './b64.js';
@@ -126,11 +133,15 @@ export class WAContainer {
             }
 
             if (!isLoggedIn) {
-                recover(PAGE_WONT_LOAD);
+                return new CredentialsMayHaveExpiredError({
+                    page: this._page
+                });
             }
 
             if (this._needRefreshAttempts >= NEED_REFRESH_COUNTER_BEFORE_FAIL) {
-                recover(TOO_MANY_ATTEMPTS_TO_RECOVER_SESSION);
+                return new CantRecoverSessionError({
+                    page: this._page
+                });
             }
 
             if (this._needRefresh) {
@@ -139,8 +150,12 @@ export class WAContainer {
                 logger.verbose("attempting to recover the session.. [attempt #%s]", this._needRefreshAttempts);
                 this._reload(true);
             } else if (!await this._canReceiveMessages()) {
-                logger.warn("can't receive messages, you may have logged in on another device (WhatsApp Web only allows 1 session at a time)");
-                logger.warn("-> refresh scheduled for the next check, no message will be logged in the meantime");
+                new CantReceiveMessagesWarn({
+                    page: this._page
+                });
+                new RefreshScheduledWarn({
+                    page: this._page
+                });
                 this._needRefresh = true;
             } else {
                 this._needRefreshAttempts = 0;
@@ -168,9 +183,9 @@ export class WAContainer {
             }
             this.log(msg);
         } catch(e) {
-            logger.warn("onWAMessage: failed to read new message");
-            logger.error(e)
-            return;
+            return new NewMessageReadingFailedWarn({
+                page: this._page
+            });
         }
 
         const log = msg.isGroup()
@@ -202,16 +217,14 @@ export class WAContainer {
         'wa:read' event has been exceeded
     */
     async _onWATimeout() {
-        if (program.screenshot) {
-            await this._page.screenshot({
-              path: `logs/${CHECK_LAST_SCREENSHOT_FILENAME}.png`
+        if (!await this._isLoggedIn()) {
+            return new CredentialsMayHaveExpiredError({
+                page: this._page
             });
         }
-        logger.verbose("WhatsApp Web loading time limit exceeded");
-        if (!await this._isLoggedIn()) {
-            recover(PAGE_WONT_LOAD);
-        }
-        exit(0);
+        return new WhatsAppWebTimeoutError({
+            page: this._page
+        });
     }
 
     /*
@@ -400,9 +413,10 @@ export class WAContainer {
         try {
             res = await this._refreshQR(code)
         } catch(e) {
-            const msg = "QRCode scanning error: " + e.message;
-            logger.error(msg);
-            throw new Error(msg);
+            return new QRCodeScanningError({
+                page: this._page,
+                message: e.message
+            });
         }
 
         switch (res) {
@@ -412,12 +426,14 @@ export class WAContainer {
                 this.save();
                 break;
             case QR_SCAN_STATUS.TIMEOUT:
-                logger.warn('QRCode scanning timeout.');
-                exit(0, "no user has scanned the QR Code. Quiting.. ");
+                return new QRCodeScanningTimeoutError({
+                    page: this._page
+                });
             case QR_SCAN_STATUS.ERROR:
             default:
-                logger.error('QRCode scanning error. Unknown QRCode element state.');
-                exit(1);
+                return new UnknownQRCodeElementState({
+                    page: this._page
+                });
         }
         return true;
     }
@@ -435,12 +451,14 @@ export class WAContainer {
 
     async _init() {
         logger.info(
-            '[%s v%s]: new instance from %s; dev_mode=%s; log_level=%s',
+            '[%s v%s]: new instance from %s; dev_mode=%s; log_level=%s; screenshot_on_err=%s; dumpio=%s',
             packageConfig.name,
             packageConfig.version,
             process.cwd(),
             isDev,
             LOG_LEVEL,
+            program.screenshot,
+            program.dumpio,
         );
 
         let code;
@@ -463,8 +481,10 @@ export class WAContainer {
                 // browser.close could throw unhandled promise errors - ignore them (we're just exiting)
                 await this._browser.close();
             }
-            logger.error(e);
-            exit(1);
+            new UnknownCriticalError({
+                page: this._page,
+                message: e.message
+            });
         }
     }
 }

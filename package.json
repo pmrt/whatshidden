@@ -1,14 +1,14 @@
 {
   "name": "whatshidden",
   "type": "module",
-  "version": "1.7.12-beta",
+  "version": "1.9.0-beta",
   "description": "Read deleted WhatsApp messages",
   "main": "src/index.js",
   "scripts": {
     "start": "npm run starting",
     "start:verbose": "LOG_LEVEL=verbose npm run starting",
     "start:dev": "NODE_ENV=development LOG_LEVEL=verbose npm run starting",
-    "starting": "node --experimental-modules --experimental-json-modules src/index.js"
+    "starting": "node --experimental-modules --experimental-json-modules src/index.js -s"
   },
   "repository": {
     "type": "git",
