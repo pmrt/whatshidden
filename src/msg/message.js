@@ -129,6 +129,27 @@ class Image extends Media {
     }
 }
 
+class Sticker extends Media {
+    constructor(msgData) {
+        super(msgData);
+        this._body = msgData.body;
+        this._width = msgData.width;
+        this._height = msgData.height;
+    }
+
+    get typename() {
+        return "Sticker";
+    }
+
+    get appInfo() {
+        return "WhatsApp Image Keys";
+    }
+
+    get fileExtension() {
+        return "webp";
+    }
+}
+
 class Audio extends Media {
     constructor(msgData) {
         super(msgData);
@@ -152,6 +173,7 @@ const Type = {
     'ptt': Audio,
     'image': Image,
     'chat': Chat,
+    'sticker': Sticker,
 }
 
 // extract is a convenient function to get the corresponding
