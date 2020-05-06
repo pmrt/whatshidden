@@ -51,9 +51,9 @@ WhatsApp Web only allows one session at a time: you can't use two sessions at th
 **_Important note: There's a bug in the current beta version which makes this check unreliable when using whatsapp web too much. [See #44](https://github.com/pmrt/whatshidden/issues/44) for tracking the issue._**
 
 
-Whatshidden performs a status check every 15 min, if it detects that you have used other session in a check it'll schedule a refresh for the next check, that way you have a minimum of 15 minutes in which you can use WhatsApp Web (but it won't log any message). After that time, in the next check it'll recover the session and a pop-up will prompt you in your other session asking if you want to use it 'Here' (in that window) or 'Close session'. If you click on 'Here' or just refresh the page you can use WhatsApp Web again and Whatshidden won't log any message until it recovers the session in future checks. Otherwise, if you don't do anything, click on 'Close session' or you close the tab/window, Whatshidden will work again.
+Whatshidden performs a status check every 15 min, if it detects that you have used other session in a check it will schedule a refresh for the next check, that way you have a minimum of 15 minutes in which you can use WhatsApp Web (but it won't log any message). After that time, in the next check it will recover the session and a pop-up will prompt you in your other session asking if you want to use it 'Here' (in that window) or 'Close session'. If you click on 'Here' or just refresh the page you can use WhatsApp Web again and Whatshidden won't log any message until it recovers the session in future checks. Otherwise, if you don't do anything, click on 'Close session' or you close the tab/window, Whatshidden will work again.
 
-In the unlikely case after 100 consecutive unsucccessful attempts of Whatshidden trying to recover the session, it'll delete the session and terminate the process.
+In the unlikely case after 100 consecutive unsucccessful attempts of Whatshidden trying to recover the session, it will delete the session and terminate the process.
 
 ### It won't log messages of a given conversation while it is open
 Whatshidden won't log any message of a conversation if you're in the same conversation at the same time on your phone. It's not a big deal since you are in the conversation and you can see the messages but it's something you have to keep in mind.
@@ -79,7 +79,7 @@ Whatshidden won't log any message of a conversation if you're in the same conver
 - Scan the QRCode printed directly in the terminal with your WhatsApp app on your mobile phone
 - When it displays a message that says `waiting for new messages` you can close the application with `CTRL + C` and run it again but this time in background with `nohup` or any other command which prevents your process from closing after ending your terminal session. Type: `nohup npm start &` if you're using `nohup`, the process will run in background: you can close your terminal. If you want to track the progress you can type in your terminal: `tail -f nohup.out` or `tail -f logs/app.log`. For more info about nohup head to [this article](https://www.computerhope.com/unix/unohup.htm)
 - Every time you run the application, the process will try to restore your previous session
-- Chat logs of the new messages will be stored in the 'chats' directory, in the root path
+- Chat logs of new messages will be stored in 'chats' directory, in the root path
 
 ### Important notes
 
@@ -110,25 +110,25 @@ As you can see, there're different ways to initialize the application:
 
 - **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
 - **`npm start:verbose`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
-- **`npm start:dev`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
+- **`npm start:dev`** Intented just for development. It will run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
 
 ##### Windows (powershell)
 
 - **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
 - **`$env:LOG_LEVEL='verbose';npm start`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
-- **`$env:NODE_ENV='production';$env:LOG_LEVEL='verbose';npm start`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
+- **`$env:NODE_ENV='production';$env:LOG_LEVEL='verbose';npm start`** Intented just for development. It will run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
 
 ##### Windows (cmd)
 
 - **`npm start`** Will initialize the application in production mode with _LOG_LEVEL=info_ (just the important things)
 - **`set LOG_LEVEL=verbose && npm start`** Will start the application in production mode with _LOG_LEVEL=verbose_ (more detailed logs)
-- **`set NODE_ENV=production && set LOG_LEVEL=verbose && npm start`** Intented just for development. It'll run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
+- **`set NODE_ENV=production && set LOG_LEVEL=verbose && npm start`** Intented just for development. It will run the application in dev mode, with _LOG_LEVEL=verbose_ and displaying the chromium window (only available in graphical environments)
 
 # Update
 You can use `unsafe_update.sh`and `update.sh` to update your version to the last stable version (master branch) using git
 
 - `unsafe_update.sh` will delete your changes to the files but not the gitignored files (like your chats, logs, etc.)
-- `update.sh` will try to pull changes from master, if you have changed a file it'll fail
+- `update.sh` will try to pull changes from master, if you have changed a file it will fail
 
 You'll need bash to run both scripts.
 
@@ -142,7 +142,7 @@ If you have a directory like e.g. _`3412345678-16593097`_ in your chats folder, 
 ### How to close session
 If you want to close your current session all you have to do is to terminate the process (with -2 SIGINT signal if possible, e.g. CTRL + C) and close the session from your phone in `configuration > Whatsapp Web` (where you scanned the QRCode)
 
-The next time you run the application it'll attempt to use it, detect the invalid session and remove it. If you need to remove it manually, you can remove the `.data` directory by typing `rm -rf .data` in your terminal. The `.data` directory is in the root path of the application along with your chats and logs
+The next time you run the application it will attempt to use it, detect the invalid session and remove it. If you need to remove it manually, you can remove the `.data` directory by typing `rm -rf .data` in your terminal. The `.data` directory is in the root path of the application along with your chats and logs
 
 ### How to run Whatshidden in ARM architectures (like most Raspberry Pi's)
 
