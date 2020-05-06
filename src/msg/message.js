@@ -16,14 +16,14 @@ class Message {
 
     get sender() {
         const s = parseSender(this._sender);
-        if (s.number) {
+        if (s) {
             return s.number;
         }
     }
 
     get participant() {
         const p = parseSender(this._id.participant);
-        if (p.number) {
+        if (p) {
             return p.number;
         }
     }
@@ -129,6 +129,7 @@ class Image extends Media {
     }
 }
 
+// TODO - Sticker should extend Image
 class Sticker extends Media {
     constructor(msgData) {
         super(msgData);
