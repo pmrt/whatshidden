@@ -12,6 +12,8 @@ export const CODE_ATTRIBUTE = 'data-ref';
 export const LOG_DIR_NAME = 'logs';
 // user-agent string to use
 export const USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36';
+// QR rotation process timeout (milliseconds)
+export const QR_ROTATION_TIMEOUT = 120e3
 // expiration time margin (milliseconds)
 export const EXPIRATION_MARGIN = 5e3;
 // time to observe the qr code scanning state again (milliseconds)

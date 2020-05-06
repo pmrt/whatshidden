@@ -16,6 +16,7 @@ import {
     QRCODE_SELECTOR,
     CODE_ATTRIBUTE,
     QRCODE_WAIT_TIMEOUT,
+    QR_ROTATION_TIMEOUT,
     NEED_REFRESH_COUNTER_BEFORE_FAIL,
     CHECK_LAST_SCREENSHOT_FILENAME,
 } from './consts.js';
@@ -381,7 +382,7 @@ export class WAContainer {
             timeout = setTimeout(() => {
                 clearInterval(timer);
                 resolve(QR_SCAN_STATUS.TIMEOUT);
-            }, this._waGlobals.GIVE_UP_WAIT - EXPIRATION_MARGIN);
+            }, QR_ROTATION_TIMEOUT - EXPIRATION_MARGIN);
 
             logger.info("waiting for login..")
             timer = setInterval(async () => {
@@ -472,8 +473,6 @@ export class WAContainer {
             if (!await this._isLoggedIn()) {
                 await this._waitForQRCode();
                 code = await this._getCode();
-                const { GIVE_UP_WAIT } = await this._getWAGlobals();
-                this._waGlobals.GIVE_UP_WAIT = GIVE_UP_WAIT;
                 await this._startQR(code);
             }
 
