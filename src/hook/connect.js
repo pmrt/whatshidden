@@ -5,13 +5,15 @@ function withCache(fn) {
 
 function extractWBMods() {
     let mods, id = Date.now();
-    window.webpackJsonp([], {
-        [id]: (mod, exports, __webpack_require__) => {
-                mods =  __webpack_require__.c;
+    window.webpackJsonp.push([
+        [id],
+        {
+            [id]: (mod, exports, __webpack_require__) => {
+                    mods =  __webpack_require__.c;
             }
         },
-        [id]
-    );
+        [[id]],
+    ]);
     return mods;
 }
 
