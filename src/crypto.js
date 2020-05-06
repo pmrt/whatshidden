@@ -85,7 +85,7 @@ export class WAMediaDownloader {
                 })
 
                 decryption.on('close', () => {
-                    logger.verbose("file %s decrypted; %s bytes read", filename, bytesRead);
+                    logger.verbose("file %s decrypted; %s/%s read/size (bytes)", filename, bytesRead, fileSize);
                     return bytesRead;
                 })
                 decryption.pipe(output);
