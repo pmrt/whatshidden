@@ -20,9 +20,9 @@
 
 # Whatshidden
 
-What's hidden? — Allows you to log and read deleted WhatsApp messages, as well as Image and Audio messages.
+What's hidden? — Allows you to log and read deleted WhatsApp messages, as well as Image, Stickers and Audio messages.
 
-It won't log any Android notification: the application makes use of a modified version of WhatsApp Web to log the messages instead. By using an alternative method scrapping is only used to get the QRCode.
+It won't log any Android notification: the application makes use of a modified version of WhatsApp Web to log the messages instead. By using an alternative method, scrapping is only used to get the QRCode.
 
 As a result, **you won't need an Android phone** in order to see the recalled messages. Also, there is no message length limit, **you'll see the full message** and **you can see images or listen to any audio message without entering WhatsApp** as they will be downloaded and decrypted as soon as you receive the message, as long as your phone has a working internet connection.
 
@@ -148,7 +148,7 @@ The next time you run the application it'll attempt to use it, detect the invali
 
 ###### _Tested on Raspberry Pi 2 Model B_
 
-You'll need raspbian stretch or greater (which includes a chromium-browser compatible with ARM). Run the application providing the chromium executable path with the `-b` (or `--browser`) argument as follows:
+You'll need raspbian stretch or greater (which includes a chromium-browser compatible with ARM). Run the application providing the chromium executable path with the `-b` (or `--browser`) argument as follows (remember, to pass arguments you need to edit your package.json, as seen in [**Available scripts**](#available-scripts)):
 
 `npm run start:verbose -b chromium-browser` or `npm run start:verbose -b /usr/bin/chromium-browser`
 
