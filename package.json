@@ -1,7 +1,7 @@
 {
   "name": "whatshidden",
   "type": "module",
-  "version": "1.10.2-beta",
+  "version": "1.10.3-beta",
   "description": "Read deleted WhatsApp messages",
   "main": "src/index.js",
   "scripts": {

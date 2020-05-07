@@ -57,10 +57,10 @@ export class Session {
                 }
 
                 if (!session.storage) {
-                    new SessionRestoreFailedWarn({
-                        message: `bad session file ${filePath}`
+                    err = new SessionRestoreFailedWarn({
+                        message: `unrecognizable JSON in session file ${filePath}`
                     });
-                    return reject(msg);
+                    return reject(err);
                 }
                 logger.verbose('[+] got session, trying to restore it');
 
