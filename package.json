@@ -36,7 +36,7 @@
     "futoin-hkdf": "^1.2.1",
     "md5": "^2.2.1",
     "mkdirp": "^0.5.1",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "puppeteer": "^3.0.2",
     "qrcode-terminal": "^0.12.0",
     "winston": "^3.2.1"
