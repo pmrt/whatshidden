@@ -1,5 +1,7 @@
 ![Last stable version](https://img.shields.io/github/package-json/v/pmrt/whatshidden/master?label=last%20stable%20version&style=for-the-badge&labelColor=7c61f9&color=383838)
 
+**Notice: This project is very old. Since then whatsapp has changed and Whatsapp Web now even works without a mobile phone connected 24/7 (which means that it is now connected to the server directly, with a whole new decryption architecture). It needs to be reverse engineered again and I don't have neither the motivation nor the time to play the cat-and-mouse game. My recommendation is to look for unofficial whatsapp APIs and adapt them to your use case.**
+
 # Table of Contents
 
 - [**I. Whatshidden**](#whatshidden)
@@ -181,6 +183,4 @@ See **_Windows (powershell)_** or **_Windows (cmd)_** in the [**Available script
 If you find a bug or you have a suggestion don't even hesitate, just [open a new issue here!](https://github.com/pmrt/whatshidden/issues/new)
 
 # Contact
-For anything else you can reach me out via telegram [@pedromrtz](https://t.me/pedromrtz) or writing an email to [from@pedro.to](mailto:from@pedro.to) (You may need to check your spam folder for the latter).
-
 Please, use [Github issues](https://github.com/pmrt/whatshidden/issues) for suggestions, bugs or technical questions so other users can find and discuss them.
